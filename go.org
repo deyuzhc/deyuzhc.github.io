@@ -1,0 +1,809 @@
+#+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
+#+AUTHOR: deyuzhc
+
+* The Go Programming Language
+
+#+begin_quote
+/The Go Programming Language/ 读书笔记
+#+end_quote
+
+** Functions
+*** 关键字defer
+:PROPERTIES:
+:CUSTOM_ID: go关键字defer
+:END:
+
+defer 是 Go 中的关键字，被 defer 修饰的函数延后执行。
+
+延后执行的时机是在函数结束的时候，也即 return 或者 panic 之后。
+
+**** 获取函数返回值
+:PROPERTIES:
+:CUSTOM_ID: 获取函数返回值
+:END:
+#+begin_src go -n
+  func double(x int) (result int) {
+    defer func() { fmt.Printf("double(%d) = %d\n", x, result) }()
+    return x + x
+  }
+
+  func main() {
+    double(4) // output: 8
+  }
+#+end_src
+
+虽然没有显式为 result 赋值，但 defer 调用已经是 return 之后，因此 defer 修饰的函数中，result 值即为函数的返回值。
+
+**** 改变函数返回值
+:PROPERTIES:
+:CUSTOM_ID: 改变函数返回值
+:END:
+#+begin_src go -n
+  func triple(x int) (result int) {
+    defer func() { result += x }()
+    return x + x
+  }
+
+  func main() {
+    result := triple(4)
+    fmt.Println(result) // output: 12
+  }
+#+end_src
+
+由于可以访问函数返回值，因此以上的代码中，在 defer 中修改了 result，使返回值为 ~result = 3 * x~
+
+**** 循环中的 defer
+:PROPERTIES:
+:CUSTOM_ID: 循环中的-defer
+:END:
+在循环中直接使用 defer 时可能存在一些问题，例如，以 defer 关闭文件可能出现因延迟关闭文件，导致在循环中打开文件数过多，从而影响正常流程。
+
+#+begin_src go -n
+  for _, name := range filenames {
+    f, err := io.Open(name)
+    if err != nil {
+      return err
+    }
+    defer f.Close() // Note: risky; could run out of file descriptors
+    ...
+    }
+#+end_src
+
+推荐的写法为，声明一个函数，在函数中使用 defer，然后在循环中调用函数：
+
+#+begin_src go -n
+  var process func(string) error
+  process = func(name string) error {
+    f, err := io.Open(name)
+    if err != nil {
+      return err
+    }
+    defer f.Close()
+    ...
+    }
+
+  for _, name := range filenames {
+    process(name)
+  }
+#+end_src
+
+*** 语言日志包
+:PROPERTIES:
+:CUSTOM_ID: go语言日志包
+:END:
+
+若要打印的内容中并没有提供换行符， =log= 会自动添加一个，因而可以省略 =\n= 。
+
+以下两种写法的输出内容是等效的：
+
+#+begin_src go -n
+  log.Printf("exec failed: %v", err)
+  log.Printf("exec failed: %v\n", err)
+#+end_src
+
+**** 调用者:
+使用 runtime 包中的 Caller 函数，可以获取到当前函数的调用者。
+
+#+begin_src go -n
+  callDepth := 1
+  pc, file, line, ok := runtime.Caller(callDepth)
+#+end_src
+
+**** 对齐填充
+:PROPERTIES:
+:CUSTOM_ID: 对齐填充
+:END:
+使用 =%*t= 可以实现对齐填充，填充后打印出的的内容右对齐，左侧以空格补全。
+如以下例程, =hi~= 占 3 个字符，而 ~width=6~ ，因而打印出来的内容将为 =...hi~= ：
+
+#+begin_src go -n
+  3  func main() {
+    4      log.Printf("%*s: hello", 6, "hi~")
+    // output: 2022/03/28 20:42:21    hi~: hello
+    //                             ^^^
+    5  }
+#+end_src
+
+*** 匿名函数
+:PROPERTIES:
+:CUSTOM_ID: go匿名函数
+:END:
+
+Go 语言的匿名函数相当灵活，甚至可以实现递归操作。
+
+经典的动态规划问题：
+#+begin_example
+一只青蛙在楼梯下，它每次可以跳一阶，也可以跳两阶，假如台阶有 n 阶，问总共可以有多少种跳法？
+#+end_example
+
+用匿名函数实现如下：
+
+#+begin_src go -n
+  package main
+
+  import "fmt"
+
+  func main() {
+    // declare a function.
+    var counter func(int) int
+    // assign an anonymous function to counter.
+    counter = func(n int) int {
+      if n <= 2 {
+        return n
+      }
+      // call itself recursively.
+      return counter(n-1) + counter(n-2)
+    }
+    count := counter(5)
+    fmt.Println(count)
+  }
+#+end_src
+
+*** 闭包陷阱
+:PROPERTIES:
+:CUSTOM_ID: 闭包陷阱
+:END:
+
+**** 闭包
+:PROPERTIES:
+:CUSTOM_ID: 闭包
+:END:
+闭包是一种匿名的函数，但这个函数与众不同：普通的函数是无状态的，输入相同的参数，得到相同的结果；但闭包却是有状态的，连续调用时，输入相同的参数，可能得到不同的结果。
+
+一个典型的闭包：
+
+#+begin_src go -n
+  func square() func() int {
+    var x int
+    return func() int {
+      x++
+      return x * x
+    }
+  }
+
+  func main() {
+    f := square()
+    fmt.Println(f()) // output: 1
+    fmt.Println(f()) // output: 4
+  }
+#+end_src
+
+从以上的例子中可以看到，匿名函数 =f= ，在 12 行执行时，x 初始值为 0，在 13 行执行时，x 初始值为 1。也即 =f= 在连续调用时，会从上一次调用的结果继续开始。类似 python 中的迭代器。
+
+**** 闭包陷阱
+:PROPERTIES:
+:CUSTOM_ID: 闭包陷阱-1
+:END:
+Go 中的循环语句只有 for 一种，标准的 for 语句格式为：
+
+#+begin_src go -n
+  for index, value := range slice {
+    ...
+  }
+#+end_src
+
+index 与 value 在每次循环时都被更新，在不使用闭包时，这里可能并不特殊。但是在用闭包时，就可能会出现如下的情况：
+
+#+begin_src go -n
+  func main() {
+    var printer []func()
+    array := []int{1, 2, 3, 4, 5}
+    for _, d := range array {
+      printer = append(printer, func() {
+        fmt.Printf("%v\t", d)
+      })
+    }
+    for _, f := range printer {
+      f()
+    }
+    // expect: 1 2 3 4 5
+    // output: 5 5 5 5 5
+  }
+#+end_src
+
+这是因为，虽然在循环中创建了 5 个不同的闭包，但是在循环结构作用域内，每次循环只是更新了 d 的值，而没有为 d 创建新实例，因此 5 个闭包中记录的变量都是相同的。
+
+若想得到正确的结果，需要在每次循环中手工创建新的变量，隔离闭包中引用的变量：
+
+#+begin_src go -n
+  func main() {
+    var printer []func()
+    array := []int{1, 2, 3, 4, 5}
+    for _, d := range array {
+      v := d // necessary
+      printer = append(printer, func() {
+        fmt.Printf("%v\t", v)
+      })
+    }
+    for _, f := range printer {
+      f()
+    }
+    // expect: 1 2 3 4 5
+    // output: 1 2 3 4 5
+  }
+#+end_src
+
+*** 语言错误与异常
+:PROPERTIES:
+:CUSTOM_ID: go语言错误与异常
+:END:
+
+Go 语言中并没有 try-catch 语法，相对地，使用了 error 与 panic 实现等价的功能。
+
+python 语言中的错误处理：
+
+#+begin_src python -n
+  try:
+      func()
+  except IOError as ex:
+      print(ex)
+#+end_src
+
+Go 语言中的错误处理：
+
+#+begin_src go -n
+  length, err := reader.Read(buffer)
+  if err =! nil {
+    ...
+  }
+#+end_src
+
+Go 的设计者认为，错误与异常是两回事，错误不应该使用控制流程处理；
+Java 等语言并没有区分这两者，处理错误与异常统一使用抛出机制，抛出后需要外部捕获；
+而在 Go 语言中，error 用于表示预期内的错误，而 panic 用于表示异常。
+
+*** Go错误的使用规范
+:PROPERTIES:
+:CUSTOM_ID: go错误的使用规范
+:END:
+
+**** 链式错误
+:PROPERTIES:
+:CUSTOM_ID: 链式错误
+:END:
+使用链式错误信息，方便排查问题：
+
+#+begin_example
+genesis: crashed: no parachute: G-switch failed: bad relay orientation
+#+end_example
+
+调用者在处理错误时，应该封装既有的错误，并添加调用者本身的信息，类似 =TCP/IP= 协议栈。
+
+#+begin_src go -n
+  func foo() error {
+    ...
+      length, err := reader.read(buffer)
+    if err != nil {
+      return fmt.Errorf("foo error: %v", err)
+    }
+    return nil
+  }
+#+end_src
+
+**** 信息的负责人
+:PROPERTIES:
+:CUSTOM_ID: 信息的负责人
+:END:
+#+begin_src go -n
+  doc, err := html.Parse(resp.Body)
+  resp.Body.Close()
+  if err != nil {
+    return nil, fmt.Errorf("parsing %s as HTML: %v", url, err)
+  }
+#+end_src
+
+#+begin_quote
+In general, the call f(x) is responsible for reporting the attempted
+operation f and the argument value x as they related to the context of
+the error. The caller is responsible for adding further information that
+it has but the call f(x) does not, such as the URL in the call to
+html.Parse above.
+#+end_quote
+
+** Methods
+*** 方法接收者
+根据 Go 语法，实体类型在实现接口时，并不需要显式声明，只要实现接口所定义的方法即可。
+
+实体类型实现的方法格式如下：
+
+#+begin_src go -n
+func (t T) foo() error {
+    ...
+}
+
+func (t *T) foo() error {
+    ...
+}
+#+end_src
+
+=Go= 语言中，方法接收者有两种类型：
++ =T=
++ =*T=
+
+这两者是不同的，且可以拥有不同的方法集。
+
+但 Go 中提供的语法糖，可以令 T 类型的变量直接使用 *T 类型的方法。
+
+例如：
+
+#+begin_src go -n
+type intSet struct{}
+
+func (*intSet) String() string {
+    return "intSet"
+}
+
+func main() {
+    // syntax error:
+    //   intSet doesn't have a String() method
+    intSet{}.String()
+
+    var s intSet
+    // s.String(): a syntactic sugar
+    // the compiler implicitly takes its address
+    s.String()
+}
+#+end_src
+
+那么何时使用 T 类型，何时使用 *T 类型呢？
+
++ T 相当于类方法
++ *T 相当于实例方法
+
+因此，如果需要改变实例属性，应使用 *T 类型接收者。
+
+但是，*T 并不是所有情况下都能使用，当一个具名类型本身已经是指针类型时，则不能再声明方法，例如：
+
+#+begin_src go -n
+type P *int
+func (P) foo() {} // compile error: invalid receiver type
+#+end_src
+
+当类型实例中的接收者包含指针类型时，则对实例 =copy= 得到的新实例本质是引用。
+
+当类型实例中的接收者没有指针类型时，对实例 =copy= 得到的是无关的新实例。
+
+*** Nil作为方法接收者
+
+nil 可以作为函数的参数，同样，也可以作为函数的接收者，尤其是当 nil 是一个有意义的类型时：
+
+#+begin_src go -n
+  package main
+
+  import (
+    "fmt"
+  )
+
+  type IntList struct {
+    Value int
+    Tail  *IntList
+  }
+
+  func (list *IntList) Sum() int {
+    if list == nil {
+      return 0
+    }
+    return list.Value + list.Tail.Sum()
+  }
+
+  func main() {
+    var list *IntList
+    sum := list.Sum() // ok, even though list is nil
+    fmt.Println(sum)  // output: 0
+  }
+#+end_src
+
+*** 结构体嵌套匿名类型
+
+结构体嵌套匿名类型，可以 "继承" 该类型的 _字段_ 和 _方法_. 这种用法类似接口嵌套.
+
+**** 嵌套匿名类型
+
+***** "继承"匿名类型的字段
+
+#+begin_quote
+=struct= A may access the fields exported from =struct= B directly if an anonymous field =B= is embedded in A.
+#+end_quote
+
+#+begin_src go -n
+  type Point struct{ X, Y float64 }
+
+  type ColoredPoint struct {
+    Point
+    Color color.RGBA
+  }
+
+  func main() {
+    var cp ColoredPoint
+    cp.X = 1 // access the filed of Point directly
+    fmt.Println(cp.Point.X) // output: 1
+  }
+#+end_src
+
+***** "继承"匿名类型的方法
+
+#+begin_quote
+A =ColoredPoint= is not a =Point=, but it "has a" =Point=, and it has two additional methods ~Distance~ and ~ScaleyBy~ promoted from point.
+#+end_quote
+
+#+begin_src go -n
+  type Point struct{ X, Y float64 }
+
+  func (p *Point) ScaleBy(factor float64) {
+    p.X *= factor
+    p.Y *= factor
+  }
+
+  type ColoredPoint struct {
+    Point
+    Color color.RGBA
+  }
+
+  func main() {
+    var cp ColoredPoint
+    cp.X = 1
+    cp.ScaleBy(2) // ScaleBy is a method of *Point, which can be accessed by ColoredPoint without metioning it
+    fmt.Println(cp.Point.X) // output: 2
+  }
+#+end_src
+
+***** 示例用途：绑定多个字段
+
+You may group together several related variables in a single variable.
+
+Here is an example using two package-level variables:
+
+#+begin_src go -n
+  var (
+    mu sync.Mutex
+    mapping make(map[string]string)
+  )
+
+  func Lookup(key string) {
+    mu.Lock()
+    v := mapping[key]
+    mu.Unlock()
+    return v
+  }
+#+end_src
+
+By using this trick, the code block above can be written as another functionally equivalent form:
+
+#+begin_src go -n
+  var cache = struct {
+    sync.Mutex
+    mapping map[string][string]
+  } {
+    mapping = make(map[string][string])
+  }
+
+  func Lookup(key string) {
+    cache.Lock()
+    v := cache.mapping[key]
+    cache.Unlock()
+  }
+#+end_src
+
+
+**** 嵌套匿名指针
+
+结构体中嵌套 _匿名指针_ ，可以用来在不同的实例间共享同一变量.
+
+#+begin_quote
+Adding another level of indirection lets us share common structures and vary the relationship between objects dynamically.
+#+end_quote
+
+#+begin_src go -n
+  type Point struct{ X, Y float64 }
+
+  type ColoredPoint struct {
+    *Point
+    Color color.RGBA
+  }
+
+  func main() {
+    red := color.RGBA{255, 0, 0, 1}
+    blue := color.RGBA{0, 0, 255, 1}
+    p := ColoredPoint{&Point{1, 1}, red}
+    q := ColoredPoint{&Point{2, 2}, blue}
+    fmt.Println(*q.Point) // output: 1, 1
+    q.Point = p.Point
+    fmt.Println(*q.Point) // output: 2, 2
+  }
+#+end_src
+
+*** 函数指针
+
+Go 中的函数指针有两种写法，一种类似 =实例方法= ，另一种类似 =类方法= 。
+
+**** 实例中的函数指针
+
+这种也是最常见的函数指针，相当于创建了一个方法别名。
+实例中的 =方法= 可以当作 =变量= 传递，调用这种函数指针， =方法接收者= 即是 =方法= 所属的 =实例= 。
+
+#+begin_src go -n
+   type Point struct{ X, Y float64 }
+
+   func (p Point) Distance(point Point) float64 {
+     x, y := p.X-point.X, p.Y-point.Y
+     square := x*x + y*y
+     return math.Sqrt(square)
+   }
+
+   func main() {
+     p1, p2 := Point{1, 1}, Point{4, 5}
+     distance := p1.Distance
+     fmt.Printf("%T\n", distance) // func(main.Point) float64
+     d := distance(p2)
+     fmt.Println(d) // output: 5
+   }
+#+end_src
+
+**** 类中的函数指针
+
+这种函数指针的用法，更像是 =类方法= ， ~Go~ 没有 =类= 这种结构，称作 =结构体方法= 可能更合适，这种方法可以直接使用 =结构体= 声明。
+
+#+begin_src go -n
+  type Point struct{ X, Y float64 }
+
+  func (p Point) Distance(point Point) float64 {
+    x, y := p.X-point.X, p.Y-point.Y
+    square := x*x + y*y
+    return math.Sqrt(square)
+  }
+
+  func main() {
+    p1, p2 := Point{1, 1}, Point{4, 5}
+    distance := Point.Distance
+    fmt.Printf("%T\n", distance) // output: func(main.Point, main.Point) float64
+    d := distance(p1, p2)
+    fmt.Println(d) // output: 5
+  }
+#+end_src
+
+** Interface
+*** 错误码-字符串映射
+:PROPERTIES:
+:CUSTOM_ID: 错误码-字符串映射
+:END:
+
+开发项目时，也曾困扰于如何采用一种优雅的方式将错误码封装为一个独立的模块，这个问题也可以利用 Go 语言的 =interface= 解决。
+
+思路很简单：
+1. 使用整数定义一个类型 =Errno=
+2. 用 =Errno= 实现 =func Error() string= 函数
+3. 调用 =Println(Errno(1))= 时即可打印出相应的字符串
+
+#+begin_src go -n
+package errno
+
+// Errno is the type of errno
+type Errno int
+
+const (
+        // ErrorSuccess success
+        ErrorSuccess = Errno(0x01)
+        // ErrorFailure failure
+        ErrorFailure = Errno(0x02)
+)
+
+// 可指定索引的变长数组
+var errors = [...]string{
+        1: "Success",
+        2: "Failure",
+}
+
+// Error implements error
+func (errno Errno) Error() string {
+        return errors[errno]
+}
+#+end_src
+
+应用：
+=fmt.Println(object)=  会检查 =object= 的类型，若为：
++ =error= ，则对调 =object= 调用 =Error()=
++ =Stringer= ，则对 =object= 调用 =String()=
+
+#+begin_src go -n
+fmt.Println(ErrorSuccess)
+// output: "Success"
+#+end_src
+
+*** 接口多态
+:PROPERTIES:
+:CUSTOM_ID: go接口多态
+:END:
+
+利用 Go 语言中的接口可以实现类似多态的效果，而且语法简洁，这在开发时将非常有用。
+
+包含实体类型的接口类型，仍然可以通过类型转换，得到原类型：
+
+#+begin_src go -n
+func newReader() io.Reader {
+        buffer := bytes.NewBufferString("hello, world")
+        return buffer
+}
+
+func main() {
+        reader := newReader()
+        // downcasting: io.Reader => *bytes.Buffer
+        bytesBuffer := reader.(*bytes.Buffer)
+        char, _ := bytesBuffer.ReadByte()
+        fmt.Println(char == 'h') // true
+}
+#+end_src
+
+根据这一特性，在创建泛用型工厂时，就变得极为简单。
+
+*** 接口适配器
+:PROPERTIES:
+:CUSTOM_ID: go接口适配器
+:END:
+
+借助 Go 语言的 interface 可以轻松实现 *函数-接口适配器* ，惊叹于 Go 语言的设计。
+
+*函数-接口适配器* ，也即令 =func A= 满足 =interface B= 的适配器。 例如：
+
+在项目开发时，存在一个已有接口，声明如下：
+
+#+begin_src go -n
+type SomeWriter interface {
+    write(io.Writer) int
+}
+#+end_src
+
+有一函数以该接口作为参数：
+
+#+begin_src go -n
+func handleSomething(writer SomeWriter) {
+    ...
+}
+#+end_src
+
+在开发时，为实现新特性，新增一函数，实现如下：
+
+#+begin_src go -n
+func doSomething(writer io.Writer) (length int) {
+    ...
+}
+#+end_src
+
+虽然 =doSomething= 签名与 =SomeWriter.write=
+相同，但到底不是同一个类型，因此不能直接被 =handleSomething= 调用。
+
+但可以借由 =interface= 实现一个适配器：
+
+#+begin_src go -n
+type Adapter func(io.Writer) int
+
+func (adapter Adapter) write(writer io.Writer) int {
+    return adapter(writer)
+}
+#+end_src
+
+可以看到，以上声明的 =Adapter= 是一个有着特定签名的函数类型，且实现了 =SomeWriter= 接口，因此可以使用 *类型转换* 来做接口适配：
+
+#+begin_src go -n
+handleSomething(Adapter(doSomething))
+#+end_src
+
+*** Go接口类型转换
+:PROPERTIES:
+:CUSTOM_ID: go接口类型转换
+:END:
+
+接口类型转换是极为常用且基础的操作，常见的转换方式为：
+
+#+begin_src go -n
+// panic when fails.
+newType := x.(SomeType)
+
+// set ok to false when fails.
+newType, ok := x.(SomeType)
+#+end_src
+
+如果变量有多种可能的类型，也可以通过 ~switch~ 与 ~x.(type)~ 来简化逻辑：
+
+#+begin_src go -n
+func switchType(x interface{}) {
+        switch x := x.(type) {
+        case nil:
+                useAsNil(x)
+        case int, uint:
+                useAsInt(x)
+        case string:
+                useAsString(x)
+        default:
+                text := fmt.Sprintf("unexpected type: %T: %v", x, x)
+                panic(text)
+        }
+}
+#+end_src
+
+*** 包含空指针的接口
+:PROPERTIES:
+:CUSTOM_ID: go包含空指针的接口
+:END:
+
+接口 interface 格式如下：
+| Property | Value |
+| Type     | nil   |
+| Value    | nil   |
+
+#+begin_src go -n
+var writer io.Writer
+
+writer == nil // true
+#+end_src
+
+若一个指针 =A= 为空，但转换为接口类型 =B= 后， ~B != nil~
+
+声明一个指针，在不赋值的条件下， ~ptr == nil~
+
+#+begin_src go -n
+var buf *bytes.Buffer
+fmt.Printf("buf *bytes.Buffer is nil: %v\n", buf == nil)
+// output: true
+#+end_src
+
+声明一个指针，并将其转换为接口类型，此时接口类型 ~interface.type != nil~
+而接口值刚好为 =nil=
+
+#+begin_src go -n
+var buf *bytes.Buffer
+fmt.Printf("buf io.Writer is nil: %v\n", io.Writer(buf) == nil)
+// output: false
+#+end_src
+
+*** Go接口使用建议
+:PROPERTIES:
+:CUSTOM_ID: go接口使用建议
+:END:
+
++ 不要创建过多接口
+#+begin_quote
+When designing a new package, novice Go programmers often start by creating a set of interfaces and only later define the concrete types that satisfy them. /This approach results in many interfaces, each of which has only a single implementation. Don't do that./
+#+end_quote
+
++ 用导出机制替代不必要的接口
+
+#+begin_quote
+Such interfaces are unnecessary abstractions; they also have a run-time cost. /You can restrict which methods of a type or field of a struct are visible outside a package using the export mechanism./
+#+end_quote
+
++ 接口的正确用法：
+
+  + 当抽象多个有共性的实体类型时
+  + 用于模块解耦（面向接口编程）时
+#+begin_quote
+Interfaces are only needed when there are two or more concrete types that must be dealt with in a uniform way. We make an exception to this rule when an interface is satisfied by a single concrete type but that type cannot live in the same package as the interface because of its dependencies. In that case, an interface is a good way to decouple two packages.
+#+end_quote
+
++ 设计简短的接口
+#+begin_quote
+Because interfaces are used in Go only when they are satisfied by two or more types, they necessarily abstract away from the details of any particular implementation. The result is smaller interfaces with fewer, simpler methods, often just one as with io.Writer or fmt.Stringer. Small interfaces are easier to satisfy when new types come along. A good rule of thumb for interface design is ask for what you need.
+#+end_quote
+
+** Goroutines and Channels
+*** TODO CSP
+*** TODO memory shared concurrency
