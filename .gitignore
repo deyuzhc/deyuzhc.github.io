@@ -1,1 +1,4 @@
-*.~undo-tree~
+.sass-cache
+.jekyll-cache
+.jekyll-metadata
+vendor

@@ -1,7 +1,3 @@
-#+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
-
-* MOE
+* deyuzhc.github.io
 
 [[https://develop.spacemacs.org][file:https://cdn.rawgit.com/syl20bnr/spacemacs/442d025779da2f62fc86c2082703697714db6514/assets/spacemacs-badge.svg]]
-
-** /The Go Programming Language/ [[file:/go.org][读书笔记]]

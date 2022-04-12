@@ -1,0 +1,1363 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2022-04-12 Tue 11:11 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>The Go Programming Language 笔记</title>
+<meta name="author" content="deyuzhc" />
+<meta name="generator" content="Org Mode" />
+<style>
+  #content { max-width: 60em; margin: auto; }
+  .title  { text-align: center;
+             margin-bottom: .2em; }
+  .subtitle { text-align: center;
+              font-size: medium;
+              font-weight: bold;
+              margin-top:0; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { font-family: monospace; color: green; }
+  .priority { font-family: monospace; color: orange; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .org-right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .org-left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .org-center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #e6e6e6;
+    border-radius: 3px;
+    background-color: #f2f2f2;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: auto;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    top: -8px;
+    right: 12px;
+    padding: 3px;
+    color: #555;
+    background-color: #f2f2f299;
+  }
+  pre.src:hover:before { display: inline; margin-top: 14px;}
+  /* Languages per Org manual */
+  pre.src-asymptote:before { content: 'Asymptote'; }
+  pre.src-awk:before { content: 'Awk'; }
+  pre.src-authinfo::before { content: 'Authinfo'; }
+  pre.src-C:before { content: 'C'; }
+  /* pre.src-C++ doesn't work in CSS */
+  pre.src-clojure:before { content: 'Clojure'; }
+  pre.src-css:before { content: 'CSS'; }
+  pre.src-D:before { content: 'D'; }
+  pre.src-ditaa:before { content: 'ditaa'; }
+  pre.src-dot:before { content: 'Graphviz'; }
+  pre.src-calc:before { content: 'Emacs Calc'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-fortran:before { content: 'Fortran'; }
+  pre.src-gnuplot:before { content: 'gnuplot'; }
+  pre.src-haskell:before { content: 'Haskell'; }
+  pre.src-hledger:before { content: 'hledger'; }
+  pre.src-java:before { content: 'Java'; }
+  pre.src-js:before { content: 'Javascript'; }
+  pre.src-latex:before { content: 'LaTeX'; }
+  pre.src-ledger:before { content: 'Ledger'; }
+  pre.src-lisp:before { content: 'Lisp'; }
+  pre.src-lilypond:before { content: 'Lilypond'; }
+  pre.src-lua:before { content: 'Lua'; }
+  pre.src-matlab:before { content: 'MATLAB'; }
+  pre.src-mscgen:before { content: 'Mscgen'; }
+  pre.src-ocaml:before { content: 'Objective Caml'; }
+  pre.src-octave:before { content: 'Octave'; }
+  pre.src-org:before { content: 'Org mode'; }
+  pre.src-oz:before { content: 'OZ'; }
+  pre.src-plantuml:before { content: 'Plantuml'; }
+  pre.src-processing:before { content: 'Processing.js'; }
+  pre.src-python:before { content: 'Python'; }
+  pre.src-R:before { content: 'R'; }
+  pre.src-ruby:before { content: 'Ruby'; }
+  pre.src-sass:before { content: 'Sass'; }
+  pre.src-scheme:before { content: 'Scheme'; }
+  pre.src-screen:before { content: 'Gnu Screen'; }
+  pre.src-sed:before { content: 'Sed'; }
+  pre.src-sh:before { content: 'shell'; }
+  pre.src-sql:before { content: 'SQL'; }
+  pre.src-sqlite:before { content: 'SQLite'; }
+  /* additional languages in org.el's org-babel-load-languages alist */
+  pre.src-forth:before { content: 'Forth'; }
+  pre.src-io:before { content: 'IO'; }
+  pre.src-J:before { content: 'J'; }
+  pre.src-makefile:before { content: 'Makefile'; }
+  pre.src-maxima:before { content: 'Maxima'; }
+  pre.src-perl:before { content: 'Perl'; }
+  pre.src-picolisp:before { content: 'Pico Lisp'; }
+  pre.src-scala:before { content: 'Scala'; }
+  pre.src-shell:before { content: 'Shell Script'; }
+  pre.src-ebnf2ps:before { content: 'ebfn2ps'; }
+  /* additional language identifiers per "defun org-babel-execute"
+       in ob-*.el */
+  pre.src-cpp:before  { content: 'C++'; }
+  pre.src-abc:before  { content: 'ABC'; }
+  pre.src-coq:before  { content: 'Coq'; }
+  pre.src-groovy:before  { content: 'Groovy'; }
+  /* additional language identifiers from org-babel-shell-names in
+     ob-shell.el: ob-shell is the only babel language using a lambda to put
+     the execution function name together. */
+  pre.src-bash:before  { content: 'bash'; }
+  pre.src-csh:before  { content: 'csh'; }
+  pre.src-ash:before  { content: 'ash'; }
+  pre.src-dash:before  { content: 'dash'; }
+  pre.src-ksh:before  { content: 'ksh'; }
+  pre.src-mksh:before  { content: 'mksh'; }
+  pre.src-posh:before  { content: 'posh'; }
+  /* Additional Emacs modes also supported by the LaTeX listings package */
+  pre.src-ada:before { content: 'Ada'; }
+  pre.src-asm:before { content: 'Assembler'; }
+  pre.src-caml:before { content: 'Caml'; }
+  pre.src-delphi:before { content: 'Delphi'; }
+  pre.src-html:before { content: 'HTML'; }
+  pre.src-idl:before { content: 'IDL'; }
+  pre.src-mercury:before { content: 'Mercury'; }
+  pre.src-metapost:before { content: 'MetaPost'; }
+  pre.src-modula-2:before { content: 'Modula-2'; }
+  pre.src-pascal:before { content: 'Pascal'; }
+  pre.src-ps:before { content: 'PostScript'; }
+  pre.src-prolog:before { content: 'Prolog'; }
+  pre.src-simula:before { content: 'Simula'; }
+  pre.src-tcl:before { content: 'tcl'; }
+  pre.src-tex:before { content: 'TeX'; }
+  pre.src-plain-tex:before { content: 'Plain TeX'; }
+  pre.src-verilog:before { content: 'Verilog'; }
+  pre.src-vhdl:before { content: 'VHDL'; }
+  pre.src-xml:before { content: 'XML'; }
+  pre.src-nxml:before { content: 'XML'; }
+  /* add a generic configuration mode; LaTeX export needs an additional
+     (add-to-list 'org-latex-listings-langs '(conf " ")) in .emacs */
+  pre.src-conf:before { content: 'Configuration File'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.org-right  { text-align: center;  }
+  th.org-left   { text-align: center;   }
+  th.org-center { text-align: center; }
+  td.org-right  { text-align: right;  }
+  td.org-left   { text-align: left;   }
+  td.org-center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara { display: inline; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .equation-container {
+    display: table;
+    text-align: center;
+    width: 100%;
+  }
+  .equation {
+    vertical-align: middle;
+  }
+  .equation-label {
+    display: table-cell;
+    text-align: right;
+    vertical-align: middle;
+  }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  .org-svg { width: 90%; }
+</style>
+<link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/htmlize.css"/>
+<link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/readtheorg.css"/>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/src/lib/js/jquery.stickytableheaders.min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/js/readtheorg.js"></script>
+</head>
+<body>
+<div id="content" class="content">
+<h1 class="title">The Go Programming Language 笔记</h1>
+<div id="table-of-contents" role="doc-toc">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#org4415417">1. The Go Programming Language</a>
+<ul>
+<li><a href="#orgcd6e16c">1.1. Functions</a>
+<ul>
+<li><a href="#go关键字defer">1.1.1. 关键字defer</a></li>
+<li><a href="#go语言日志包">1.1.2. 语言日志包</a></li>
+<li><a href="#go匿名函数">1.1.3. 匿名函数</a></li>
+<li><a href="#闭包陷阱">1.1.4. 闭包陷阱</a></li>
+<li><a href="#go语言错误与异常">1.1.5. 语言错误与异常</a></li>
+<li><a href="#go错误的使用规范">1.1.6. Go错误的使用规范</a></li>
+</ul>
+</li>
+<li><a href="#org07df099">1.2. Methods</a>
+<ul>
+<li><a href="#orgad8e86c">1.2.1. 方法接收者</a></li>
+<li><a href="#orgd494d60">1.2.2. nil作为方法接收者</a></li>
+<li><a href="#orgdf51c4a">1.2.3. 结构体嵌套匿名类型</a></li>
+<li><a href="#org7e11ed1">1.2.4. 函数指针</a></li>
+</ul>
+</li>
+<li><a href="#orgd3258eb">1.3. Interface</a>
+<ul>
+<li><a href="#错误码-字符串映射">1.3.1. 错误码-字符串映射</a></li>
+<li><a href="#go接口多态">1.3.2. 接口多态</a></li>
+<li><a href="#go接口适配器">1.3.3. 接口适配器</a></li>
+<li><a href="#go接口类型转换">1.3.4. Go接口类型转换</a></li>
+<li><a href="#go包含空指针的接口">1.3.5. 包含空指针的接口</a></li>
+<li><a href="#go接口使用建议">1.3.6. Go接口使用建议</a></li>
+</ul>
+</li>
+<li><a href="#orgf6b8b1d">1.4. Goroutines and Channels</a>
+<ul>
+<li><a href="#org7fbe8c0">1.4.1. <span class="todo TODO">TODO</span> CSP</a></li>
+<li><a href="#orga86468c">1.4.2. <span class="todo TODO">TODO</span> memory shared concurrency</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+<div id="outline-container-org4415417" class="outline-2">
+<h2 id="org4415417"><span class="section-number-2">1.</span> The Go Programming Language</h2>
+<div class="outline-text-2" id="text-1">
+<blockquote>
+<p>
+<i>The Go Programming Language</i> 读书笔记
+</p>
+</blockquote>
+</div>
+
+<div id="outline-container-orgcd6e16c" class="outline-3">
+<h3 id="orgcd6e16c"><span class="section-number-3">1.1.</span> Functions</h3>
+<div class="outline-text-3" id="text-1-1">
+</div>
+<div id="outline-container-go关键字defer" class="outline-4">
+<h4 id="go关键字defer"><span class="section-number-4">1.1.1.</span> 关键字defer</h4>
+<div class="outline-text-4" id="text-go关键字defer">
+<p>
+defer 是 Go 中的关键字，被 defer 修饰的函数延后执行。
+</p>
+
+<p>
+延后执行的时机是在函数结束的时候，也即 return 或者 panic 之后。
+</p>
+</div>
+
+<ol class="org-ol">
+<li><a id="获取函数返回值"></a>获取函数返回值<br />
+<div class="outline-text-5" id="text-获取函数返回值">
+<div class="org-src-container">
+<pre class="src src-go"><span class="linenr">1: </span><span style="color: #4f97d7; font-weight: bold;">func</span> <span style="color: #bc6ec5; font-weight: bold;">double</span><span style="color: #4f97d7;">(</span><span style="color: #7590db;">x</span> <span style="color: #ce537a; font-weight: bold;">int</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">(</span><span style="color: #7590db;">result</span> <span style="color: #ce537a; font-weight: bold;">int</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">{</span>
+<span class="linenr">2: </span>  <span style="color: #4f97d7; font-weight: bold;">defer</span> <span style="color: #4f97d7; font-weight: bold;">func</span><span style="color: #bc6ec5;">()</span> <span style="color: #bc6ec5;">{</span> fmt.<span style="color: #bc6ec5; font-weight: bold;">Printf</span><span style="color: #2d9574;">(</span><span style="color: #2d9574;">"double(%d) = %d\n"</span>, x, result<span style="color: #2d9574;">)</span> <span style="color: #bc6ec5;">}()</span>
+<span class="linenr">3: </span>  <span style="color: #4f97d7; font-weight: bold;">return</span> x + x
+<span class="linenr">4: </span><span style="color: #4f97d7;">}</span>
+<span class="linenr">5: </span>
+<span class="linenr">6: </span><span style="color: #4f97d7; font-weight: bold;">func</span> <span style="color: #bc6ec5; font-weight: bold;">main</span><span style="color: #4f97d7;">()</span> <span style="color: #4f97d7;">{</span>
+<span class="linenr">7: </span>  <span style="color: #bc6ec5; font-weight: bold;">double</span><span style="color: #bc6ec5;">(</span><span style="color: #a45bad;">4</span><span style="color: #bc6ec5;">)</span> <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">output: 8</span>
+<span class="linenr">8: </span><span style="color: #4f97d7;">}</span>
+</pre>
+</div>
+
+<p>
+虽然没有显式为 result 赋值，但 defer 调用已经是 return 之后，因此 defer 修饰的函数中，result 值即为函数的返回值。
+</p>
+</div>
+</li>
+
+<li><a id="改变函数返回值"></a>改变函数返回值<br />
+<div class="outline-text-5" id="text-改变函数返回值">
+<div class="org-src-container">
+<pre class="src src-go"><span class="linenr">1: </span><span style="color: #4f97d7; font-weight: bold;">func</span> <span style="color: #bc6ec5; font-weight: bold;">triple</span><span style="color: #4f97d7;">(</span><span style="color: #7590db;">x</span> <span style="color: #ce537a; font-weight: bold;">int</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">(</span><span style="color: #7590db;">result</span> <span style="color: #ce537a; font-weight: bold;">int</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">{</span>
+<span class="linenr">2: </span>  <span style="color: #4f97d7; font-weight: bold;">defer</span> <span style="color: #4f97d7; font-weight: bold;">func</span><span style="color: #bc6ec5;">()</span> <span style="color: #bc6ec5;">{</span> result += x <span style="color: #bc6ec5;">}()</span>
+<span class="linenr">3: </span>  <span style="color: #4f97d7; font-weight: bold;">return</span> x + x
+<span class="linenr">4: </span><span style="color: #4f97d7;">}</span>
+<span class="linenr">5: </span>
+<span class="linenr">6: </span><span style="color: #4f97d7; font-weight: bold;">func</span> <span style="color: #bc6ec5; font-weight: bold;">main</span><span style="color: #4f97d7;">()</span> <span style="color: #4f97d7;">{</span>
+<span class="linenr">7: </span>  <span style="color: #7590db;">result</span> := <span style="color: #bc6ec5; font-weight: bold;">triple</span><span style="color: #bc6ec5;">(</span><span style="color: #a45bad;">4</span><span style="color: #bc6ec5;">)</span>
+<span class="linenr">8: </span>  fmt.<span style="color: #bc6ec5; font-weight: bold;">Println</span><span style="color: #bc6ec5;">(</span>result<span style="color: #bc6ec5;">)</span> <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">output: 12</span>
+<span class="linenr">9: </span><span style="color: #4f97d7;">}</span>
+</pre>
+</div>
+
+<p>
+由于可以访问函数返回值，因此以上的代码中，在 defer 中修改了 result，使返回值为 <code>result = 3 * x</code>
+</p>
+</div>
+</li>
+
+<li><a id="循环中的-defer"></a>循环中的 defer<br />
+<div class="outline-text-5" id="text-循环中的-defer">
+<p>
+在循环中直接使用 defer 时可能存在一些问题，例如，以 defer 关闭文件可能出现因延迟关闭文件，导致在循环中打开文件数过多，从而影响正常流程。
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span class="linenr">1: </span><span style="color: #4f97d7; font-weight: bold;">for</span> <span style="color: #7590db;">_</span>, <span style="color: #7590db;">name</span> := <span style="color: #4f97d7; font-weight: bold;">range</span> filenames <span style="color: #4f97d7;">{</span>
+<span class="linenr">2: </span>  <span style="color: #7590db;">f</span>, <span style="color: #7590db;">err</span> := io.<span style="color: #bc6ec5; font-weight: bold;">Open</span><span style="color: #bc6ec5;">(</span>name<span style="color: #bc6ec5;">)</span>
+<span class="linenr">3: </span>  <span style="color: #4f97d7; font-weight: bold;">if</span> err != <span style="color: #a45bad;">nil</span> <span style="color: #bc6ec5;">{</span>
+<span class="linenr">4: </span>    <span style="color: #4f97d7; font-weight: bold;">return</span> err
+<span class="linenr">5: </span>  <span style="color: #bc6ec5;">}</span>
+<span class="linenr">6: </span>  <span style="color: #4f97d7; font-weight: bold;">defer</span> f.<span style="color: #bc6ec5; font-weight: bold;">Close</span><span style="color: #bc6ec5;">()</span> <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">Note: risky; could run out of file descriptors</span>
+<span class="linenr">7: </span>  ...
+<span class="linenr">8: </span>  <span style="color: #4f97d7;">}</span>
+</pre>
+</div>
+
+<p>
+推荐的写法为，声明一个函数，在函数中使用 defer，然后在循环中调用函数：
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span class="linenr"> 1: </span><span style="color: #4f97d7; font-weight: bold;">var</span> <span style="color: #7590db;">process</span> <span style="color: #4f97d7; font-weight: bold;">func</span><span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">string</span><span style="color: #4f97d7;">)</span> <span style="color: #ce537a; font-weight: bold;">error</span>
+<span class="linenr"> 2: </span>process = <span style="color: #4f97d7; font-weight: bold;">func</span><span style="color: #4f97d7;">(</span><span style="color: #7590db;">name</span> <span style="color: #ce537a; font-weight: bold;">string</span><span style="color: #4f97d7;">)</span> <span style="color: #ce537a; font-weight: bold;">error</span> <span style="color: #4f97d7;">{</span>
+<span class="linenr"> 3: </span>  <span style="color: #7590db;">f</span>, <span style="color: #7590db;">err</span> := io.<span style="color: #bc6ec5; font-weight: bold;">Open</span><span style="color: #bc6ec5;">(</span>name<span style="color: #bc6ec5;">)</span>
+<span class="linenr"> 4: </span>  <span style="color: #4f97d7; font-weight: bold;">if</span> err != <span style="color: #a45bad;">nil</span> <span style="color: #bc6ec5;">{</span>
+<span class="linenr"> 5: </span>    <span style="color: #4f97d7; font-weight: bold;">return</span> err
+<span class="linenr"> 6: </span>  <span style="color: #bc6ec5;">}</span>
+<span class="linenr"> 7: </span>  <span style="color: #4f97d7; font-weight: bold;">defer</span> f.<span style="color: #bc6ec5; font-weight: bold;">Close</span><span style="color: #bc6ec5;">()</span>
+<span class="linenr"> 8: </span>  ...
+<span class="linenr"> 9: </span>  <span style="color: #4f97d7;">}</span>
+<span class="linenr">10: </span>
+<span class="linenr">11: </span><span style="color: #4f97d7; font-weight: bold;">for</span> <span style="color: #7590db;">_</span>, <span style="color: #7590db;">name</span> := <span style="color: #4f97d7; font-weight: bold;">range</span> filenames <span style="color: #4f97d7;">{</span>
+<span class="linenr">12: </span>  <span style="color: #bc6ec5; font-weight: bold;">process</span><span style="color: #bc6ec5;">(</span>name<span style="color: #bc6ec5;">)</span>
+<span class="linenr">13: </span><span style="color: #4f97d7;">}</span>
+</pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+
+<div id="outline-container-go语言日志包" class="outline-4">
+<h4 id="go语言日志包"><span class="section-number-4">1.1.2.</span> 语言日志包</h4>
+<div class="outline-text-4" id="text-go语言日志包">
+<p>
+若要打印的内容中并没有提供换行符， <code>log</code> 会自动添加一个，因而可以省略 <code>\n</code> 。
+</p>
+
+<p>
+以下两种写法的输出内容是等效的：
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span class="linenr">1: </span>log.<span style="color: #bc6ec5; font-weight: bold;">Printf</span><span style="color: #4f97d7;">(</span><span style="color: #2d9574;">"exec failed: %v"</span>, err<span style="color: #4f97d7;">)</span>
+<span class="linenr">2: </span>log.<span style="color: #bc6ec5; font-weight: bold;">Printf</span><span style="color: #4f97d7;">(</span><span style="color: #2d9574;">"exec failed: %v\n"</span>, err<span style="color: #4f97d7;">)</span>
+</pre>
+</div>
+</div>
+
+<ol class="org-ol">
+<li><a id="org919176d"></a>调用者:<br />
+<div class="outline-text-5" id="text-1-1-2-1">
+<p>
+使用 runtime 包中的 Caller 函数，可以获取到当前函数的调用者。
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span class="linenr">1: </span><span style="color: #7590db;">callDepth</span> := <span style="color: #a45bad;">1</span>
+<span class="linenr">2: </span><span style="color: #7590db;">pc</span>, <span style="color: #7590db;">file</span>, <span style="color: #7590db;">line</span>, <span style="color: #7590db;">ok</span> := runtime.<span style="color: #bc6ec5; font-weight: bold;">Caller</span><span style="color: #4f97d7;">(</span>callDepth<span style="color: #4f97d7;">)</span>
+</pre>
+</div>
+</div>
+</li>
+
+<li><a id="对齐填充"></a>对齐填充<br />
+<div class="outline-text-5" id="text-对齐填充">
+<p>
+使用 <code>%*t</code> 可以实现对齐填充，填充后打印出的的内容右对齐，左侧以空格补全。
+如以下例程, <code>hi~</code> 占 3 个字符，而 <code>width=6</code> ，因而打印出来的内容将为 <code>...hi~</code> ：
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span class="linenr">1: </span><span style="color: #a45bad;">3</span>  <span style="color: #4f97d7; font-weight: bold;">func</span> <span style="color: #bc6ec5; font-weight: bold;">main</span><span style="color: #4f97d7;">()</span> <span style="color: #4f97d7;">{</span>
+<span class="linenr">2: </span>  <span style="color: #a45bad;">4</span>      <span style="color: #ce537a; font-weight: bold;">log.Printf</span><span style="color: #bc6ec5;">(</span><span style="color: #2d9574;">"%*s: hello"</span>, <span style="color: #a45bad;">6</span>, <span style="color: #2d9574;">"hi~"</span><span style="color: #bc6ec5;">)</span>
+<span class="linenr">3: </span>  <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">output: 2022/03/28 20:42:21    hi~: hello</span>
+<span class="linenr">4: </span>  <span style="color: #2aa1ae; background-color: #292e34;">//                             </span><span style="color: #2aa1ae; background-color: #292e34;">^^^</span>
+<span class="linenr">5: </span>  <span style="color: #a45bad;">5</span>  <span style="color: #4f97d7;">}</span>
+</pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+
+<div id="outline-container-go匿名函数" class="outline-4">
+<h4 id="go匿名函数"><span class="section-number-4">1.1.3.</span> 匿名函数</h4>
+<div class="outline-text-4" id="text-go匿名函数">
+<p>
+Go 语言的匿名函数相当灵活，甚至可以实现递归操作。
+</p>
+
+<p>
+经典的动态规划问题：
+</p>
+<pre class="example" id="orgf8fc707">
+一只青蛙在楼梯下，它每次可以跳一阶，也可以跳两阶，假如台阶有 n 阶，问总共可以有多少种跳法？
+</pre>
+
+<p>
+用匿名函数实现如下：
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span class="linenr"> 1: </span><span style="color: #4f97d7; font-weight: bold;">package</span> main
+<span class="linenr"> 2: </span>
+<span class="linenr"> 3: </span><span style="color: #4f97d7; font-weight: bold;">import</span> <span style="color: #2d9574;">"fmt"</span>
+<span class="linenr"> 4: </span>
+<span class="linenr"> 5: </span><span style="color: #4f97d7; font-weight: bold;">func</span> <span style="color: #bc6ec5; font-weight: bold;">main</span><span style="color: #4f97d7;">()</span> <span style="color: #4f97d7;">{</span>
+<span class="linenr"> 6: </span>  <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">declare a function.</span>
+<span class="linenr"> 7: </span>  <span style="color: #4f97d7; font-weight: bold;">var</span> <span style="color: #7590db;">counter</span> <span style="color: #4f97d7; font-weight: bold;">func</span><span style="color: #bc6ec5;">(</span><span style="color: #ce537a; font-weight: bold;">int</span><span style="color: #bc6ec5;">)</span> <span style="color: #ce537a; font-weight: bold;">int</span>
+<span class="linenr"> 8: </span>  <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">assign an anonymous function to counter.</span>
+<span class="linenr"> 9: </span>  counter = <span style="color: #4f97d7; font-weight: bold;">func</span><span style="color: #bc6ec5;">(</span><span style="color: #7590db;">n</span> <span style="color: #ce537a; font-weight: bold;">int</span><span style="color: #bc6ec5;">)</span> <span style="color: #ce537a; font-weight: bold;">int</span> <span style="color: #bc6ec5;">{</span>
+<span class="linenr">10: </span>    <span style="color: #4f97d7; font-weight: bold;">if</span> n &lt;= <span style="color: #a45bad;">2</span> <span style="color: #2d9574;">{</span>
+<span class="linenr">11: </span>      <span style="color: #4f97d7; font-weight: bold;">return</span> n
+<span class="linenr">12: </span>    <span style="color: #2d9574;">}</span>
+<span class="linenr">13: </span>    <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">call itself recursively.</span>
+<span class="linenr">14: </span>    <span style="color: #4f97d7; font-weight: bold;">return</span> <span style="color: #bc6ec5; font-weight: bold;">counter</span><span style="color: #2d9574;">(</span>n-<span style="color: #a45bad;">1</span><span style="color: #2d9574;">)</span> + <span style="color: #bc6ec5; font-weight: bold;">counter</span><span style="color: #2d9574;">(</span>n-<span style="color: #a45bad;">2</span><span style="color: #2d9574;">)</span>
+<span class="linenr">15: </span>  <span style="color: #bc6ec5;">}</span>
+<span class="linenr">16: </span>  <span style="color: #7590db;">count</span> := <span style="color: #bc6ec5; font-weight: bold;">counter</span><span style="color: #bc6ec5;">(</span><span style="color: #a45bad;">5</span><span style="color: #bc6ec5;">)</span>
+<span class="linenr">17: </span>  fmt.<span style="color: #bc6ec5; font-weight: bold;">Println</span><span style="color: #bc6ec5;">(</span>count<span style="color: #bc6ec5;">)</span>
+<span class="linenr">18: </span><span style="color: #4f97d7;">}</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-闭包陷阱" class="outline-4">
+<h4 id="闭包陷阱"><span class="section-number-4">1.1.4.</span> 闭包陷阱</h4>
+<div class="outline-text-4" id="text-闭包陷阱">
+</div>
+
+<ol class="org-ol">
+<li><a id="闭包"></a>闭包<br />
+<div class="outline-text-5" id="text-闭包">
+<p>
+闭包是一种匿名的函数，但这个函数与众不同：普通的函数是无状态的，输入相同的参数，得到相同的结果；但闭包却是有状态的，连续调用时，输入相同的参数，可能得到不同的结果。
+</p>
+
+<p>
+一个典型的闭包：
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span class="linenr"> 1: </span><span style="color: #4f97d7; font-weight: bold;">func</span> <span style="color: #bc6ec5; font-weight: bold;">square</span><span style="color: #4f97d7;">()</span> <span style="color: #4f97d7; font-weight: bold;">func</span><span style="color: #4f97d7;">()</span> <span style="color: #ce537a; font-weight: bold;">int</span> <span style="color: #4f97d7;">{</span>
+<span class="linenr"> 2: </span>  <span style="color: #4f97d7; font-weight: bold;">var</span> <span style="color: #7590db;">x</span> <span style="color: #ce537a; font-weight: bold;">int</span>
+<span class="linenr"> 3: </span>  <span style="color: #4f97d7; font-weight: bold;">return</span> <span style="color: #4f97d7; font-weight: bold;">func</span><span style="color: #bc6ec5;">()</span> <span style="color: #ce537a; font-weight: bold;">int</span> <span style="color: #bc6ec5;">{</span>
+<span class="linenr"> 4: </span>    x++
+<span class="linenr"> 5: </span>    <span style="color: #4f97d7; font-weight: bold;">return</span> x * x
+<span class="linenr"> 6: </span>  <span style="color: #bc6ec5;">}</span>
+<span class="linenr"> 7: </span><span style="color: #4f97d7;">}</span>
+<span class="linenr"> 8: </span>
+<span class="linenr"> 9: </span><span style="color: #4f97d7; font-weight: bold;">func</span> <span style="color: #bc6ec5; font-weight: bold;">main</span><span style="color: #4f97d7;">()</span> <span style="color: #4f97d7;">{</span>
+<span class="linenr">10: </span>  <span style="color: #7590db;">f</span> := <span style="color: #bc6ec5; font-weight: bold;">square</span><span style="color: #bc6ec5;">()</span>
+<span class="linenr">11: </span>  fmt.<span style="color: #bc6ec5; font-weight: bold;">Println</span><span style="color: #bc6ec5;">(</span><span style="color: #bc6ec5; font-weight: bold;">f</span><span style="color: #2d9574;">()</span><span style="color: #bc6ec5;">)</span> <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">output: 1</span>
+<span class="linenr">12: </span>  fmt.<span style="color: #bc6ec5; font-weight: bold;">Println</span><span style="color: #bc6ec5;">(</span><span style="color: #bc6ec5; font-weight: bold;">f</span><span style="color: #2d9574;">()</span><span style="color: #bc6ec5;">)</span> <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">output: 4</span>
+<span class="linenr">13: </span><span style="color: #4f97d7;">}</span>
+</pre>
+</div>
+
+<p>
+从以上的例子中可以看到，匿名函数 <code>f</code> ，在 12 行执行时，x 初始值为 0，在 13 行执行时，x 初始值为 1。也即 <code>f</code> 在连续调用时，会从上一次调用的结果继续开始。类似 python 中的迭代器。
+</p>
+</div>
+</li>
+
+<li><a id="闭包陷阱-1"></a>闭包陷阱<br />
+<div class="outline-text-5" id="text-闭包陷阱-1">
+<p>
+Go 中的循环语句只有 for 一种，标准的 for 语句格式为：
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span class="linenr">1: </span><span style="color: #4f97d7; font-weight: bold;">for</span> <span style="color: #7590db;">index</span>, <span style="color: #7590db;">value</span> := <span style="color: #4f97d7; font-weight: bold;">range</span> slice <span style="color: #4f97d7;">{</span>
+<span class="linenr">2: </span>  ...
+<span class="linenr">3: </span><span style="color: #4f97d7;">}</span>
+</pre>
+</div>
+
+<p>
+index 与 value 在每次循环时都被更新，在不使用闭包时，这里可能并不特殊。但是在用闭包时，就可能会出现如下的情况：
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span class="linenr"> 1: </span><span style="color: #4f97d7; font-weight: bold;">func</span> <span style="color: #bc6ec5; font-weight: bold;">main</span><span style="color: #4f97d7;">()</span> <span style="color: #4f97d7;">{</span>
+<span class="linenr"> 2: </span>  <span style="color: #4f97d7; font-weight: bold;">var</span> <span style="color: #7590db;">printer</span> <span style="color: #bc6ec5;">[]</span><span style="color: #4f97d7; font-weight: bold;">func</span><span style="color: #bc6ec5;">()</span>
+<span class="linenr"> 3: </span>  <span style="color: #7590db;">array</span> := <span style="color: #bc6ec5;">[]</span><span style="color: #ce537a; font-weight: bold;">int</span><span style="color: #bc6ec5;">{</span><span style="color: #a45bad;">1</span>, <span style="color: #a45bad;">2</span>, <span style="color: #a45bad;">3</span>, <span style="color: #a45bad;">4</span>, <span style="color: #a45bad;">5</span><span style="color: #bc6ec5;">}</span>
+<span class="linenr"> 4: </span>  <span style="color: #4f97d7; font-weight: bold;">for</span> <span style="color: #7590db;">_</span>, <span style="color: #7590db;">d</span> := <span style="color: #4f97d7; font-weight: bold;">range</span> array <span style="color: #bc6ec5;">{</span>
+<span class="linenr"> 5: </span>    printer = <span style="color: #4f97d7;">append</span><span style="color: #2d9574;">(</span>printer, <span style="color: #4f97d7; font-weight: bold;">func</span><span style="color: #67b11d;">()</span> <span style="color: #67b11d;">{</span>
+<span class="linenr"> 6: </span>      fmt.<span style="color: #bc6ec5; font-weight: bold;">Printf</span><span style="color: #b1951d;">(</span><span style="color: #2d9574;">"%v\t"</span>, d<span style="color: #b1951d;">)</span>
+<span class="linenr"> 7: </span>    <span style="color: #67b11d;">}</span><span style="color: #2d9574;">)</span>
+<span class="linenr"> 8: </span>  <span style="color: #bc6ec5;">}</span>
+<span class="linenr"> 9: </span>  <span style="color: #4f97d7; font-weight: bold;">for</span> <span style="color: #7590db;">_</span>, <span style="color: #7590db;">f</span> := <span style="color: #4f97d7; font-weight: bold;">range</span> printer <span style="color: #bc6ec5;">{</span>
+<span class="linenr">10: </span>    <span style="color: #bc6ec5; font-weight: bold;">f</span><span style="color: #2d9574;">()</span>
+<span class="linenr">11: </span>  <span style="color: #bc6ec5;">}</span>
+<span class="linenr">12: </span>  <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">expect: 1 2 3 4 5</span>
+<span class="linenr">13: </span>  <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">output: 5 5 5 5 5</span>
+<span class="linenr">14: </span><span style="color: #4f97d7;">}</span>
+</pre>
+</div>
+
+<p>
+这是因为，虽然在循环中创建了 5 个不同的闭包，但是在循环结构作用域内，每次循环只是更新了 d 的值，而没有为 d 创建新实例，因此 5 个闭包中记录的变量都是相同的。
+</p>
+
+<p>
+若想得到正确的结果，需要在每次循环中手工创建新的变量，隔离闭包中引用的变量：
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span class="linenr"> 1: </span><span style="color: #4f97d7; font-weight: bold;">func</span> <span style="color: #bc6ec5; font-weight: bold;">main</span><span style="color: #4f97d7;">()</span> <span style="color: #4f97d7;">{</span>
+<span class="linenr"> 2: </span>  <span style="color: #4f97d7; font-weight: bold;">var</span> <span style="color: #7590db;">printer</span> <span style="color: #bc6ec5;">[]</span><span style="color: #4f97d7; font-weight: bold;">func</span><span style="color: #bc6ec5;">()</span>
+<span class="linenr"> 3: </span>  <span style="color: #7590db;">array</span> := <span style="color: #bc6ec5;">[]</span><span style="color: #ce537a; font-weight: bold;">int</span><span style="color: #bc6ec5;">{</span><span style="color: #a45bad;">1</span>, <span style="color: #a45bad;">2</span>, <span style="color: #a45bad;">3</span>, <span style="color: #a45bad;">4</span>, <span style="color: #a45bad;">5</span><span style="color: #bc6ec5;">}</span>
+<span class="linenr"> 4: </span>  <span style="color: #4f97d7; font-weight: bold;">for</span> <span style="color: #7590db;">_</span>, <span style="color: #7590db;">d</span> := <span style="color: #4f97d7; font-weight: bold;">range</span> array <span style="color: #bc6ec5;">{</span>
+<span class="linenr"> 5: </span>    <span style="color: #7590db;">v</span> := d <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">necessary</span>
+<span class="linenr"> 6: </span>    printer = <span style="color: #4f97d7;">append</span><span style="color: #2d9574;">(</span>printer, <span style="color: #4f97d7; font-weight: bold;">func</span><span style="color: #67b11d;">()</span> <span style="color: #67b11d;">{</span>
+<span class="linenr"> 7: </span>      fmt.<span style="color: #bc6ec5; font-weight: bold;">Printf</span><span style="color: #b1951d;">(</span><span style="color: #2d9574;">"%v\t"</span>, v<span style="color: #b1951d;">)</span>
+<span class="linenr"> 8: </span>    <span style="color: #67b11d;">}</span><span style="color: #2d9574;">)</span>
+<span class="linenr"> 9: </span>  <span style="color: #bc6ec5;">}</span>
+<span class="linenr">10: </span>  <span style="color: #4f97d7; font-weight: bold;">for</span> <span style="color: #7590db;">_</span>, <span style="color: #7590db;">f</span> := <span style="color: #4f97d7; font-weight: bold;">range</span> printer <span style="color: #bc6ec5;">{</span>
+<span class="linenr">11: </span>    <span style="color: #bc6ec5; font-weight: bold;">f</span><span style="color: #2d9574;">()</span>
+<span class="linenr">12: </span>  <span style="color: #bc6ec5;">}</span>
+<span class="linenr">13: </span>  <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">expect: 1 2 3 4 5</span>
+<span class="linenr">14: </span>  <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">output: 1 2 3 4 5</span>
+<span class="linenr">15: </span><span style="color: #4f97d7;">}</span>
+</pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+
+<div id="outline-container-go语言错误与异常" class="outline-4">
+<h4 id="go语言错误与异常"><span class="section-number-4">1.1.5.</span> 语言错误与异常</h4>
+<div class="outline-text-4" id="text-go语言错误与异常">
+<p>
+Go 语言中并没有 try-catch 语法，相对地，使用了 error 与 panic 实现等价的功能。
+</p>
+
+<p>
+python 语言中的错误处理：
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="linenr">1: </span><span style="color: #4f97d7; font-weight: bold;">try</span>:
+<span class="linenr">2: </span>    func<span style="color: #4f97d7;">()</span>
+<span class="linenr">3: </span><span style="color: #4f97d7; font-weight: bold;">except</span> <span style="color: #ce537a; font-weight: bold;">IOError</span> <span style="color: #4f97d7; font-weight: bold;">as</span> ex:
+<span class="linenr">4: </span>    <span style="color: #4f97d7; font-weight: bold;">print</span><span style="color: #4f97d7;">(</span>ex<span style="color: #4f97d7;">)</span>
+</pre>
+</div>
+
+<p>
+Go 语言中的错误处理：
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span class="linenr">1: </span><span style="color: #7590db;">length</span>, <span style="color: #7590db;">err</span> := reader.<span style="color: #bc6ec5; font-weight: bold;">Read</span><span style="color: #4f97d7;">(</span>buffer<span style="color: #4f97d7;">)</span>
+<span class="linenr">2: </span><span style="color: #4f97d7; font-weight: bold;">if</span> err =<span style="color: #a45bad;">!</span> <span style="color: #a45bad;">nil</span> <span style="color: #4f97d7;">{</span>
+<span class="linenr">3: </span>  ...
+<span class="linenr">4: </span><span style="color: #4f97d7;">}</span>
+</pre>
+</div>
+
+<p>
+Go 的设计者认为，错误与异常是两回事，错误不应该使用控制流程处理；
+Java 等语言并没有区分这两者，处理错误与异常统一使用抛出机制，抛出后需要外部捕获；
+而在 Go 语言中，error 用于表示预期内的错误，而 panic 用于表示异常。
+</p>
+</div>
+</div>
+
+<div id="outline-container-go错误的使用规范" class="outline-4">
+<h4 id="go错误的使用规范"><span class="section-number-4">1.1.6.</span> Go错误的使用规范</h4>
+<div class="outline-text-4" id="text-go错误的使用规范">
+</div>
+
+<ol class="org-ol">
+<li><a id="链式错误"></a>链式错误<br />
+<div class="outline-text-5" id="text-链式错误">
+<p>
+使用链式错误信息，方便排查问题：
+</p>
+
+<pre class="example" id="org7fc196f">
+genesis: crashed: no parachute: G-switch failed: bad relay orientation
+</pre>
+
+<p>
+调用者在处理错误时，应该封装既有的错误，并添加调用者本身的信息，类似 <code>TCP/IP</code> 协议栈。
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span class="linenr">1: </span><span style="color: #4f97d7; font-weight: bold;">func</span> <span style="color: #bc6ec5; font-weight: bold;">foo</span><span style="color: #4f97d7;">()</span> <span style="color: #ce537a; font-weight: bold;">error</span> <span style="color: #4f97d7;">{</span>
+<span class="linenr">2: </span>  ...
+<span class="linenr">3: </span>    <span style="color: #7590db;">length</span>, <span style="color: #7590db;">err</span> := reader.<span style="color: #bc6ec5; font-weight: bold;">read</span><span style="color: #bc6ec5;">(</span>buffer<span style="color: #bc6ec5;">)</span>
+<span class="linenr">4: </span>  <span style="color: #4f97d7; font-weight: bold;">if</span> err != <span style="color: #a45bad;">nil</span> <span style="color: #bc6ec5;">{</span>
+<span class="linenr">5: </span>    <span style="color: #4f97d7; font-weight: bold;">return</span> fmt.<span style="color: #bc6ec5; font-weight: bold;">Errorf</span><span style="color: #2d9574;">(</span><span style="color: #2d9574;">"foo error: %v"</span>, err<span style="color: #2d9574;">)</span>
+<span class="linenr">6: </span>  <span style="color: #bc6ec5;">}</span>
+<span class="linenr">7: </span>  <span style="color: #4f97d7; font-weight: bold;">return</span> <span style="color: #a45bad;">nil</span>
+<span class="linenr">8: </span><span style="color: #4f97d7;">}</span>
+</pre>
+</div>
+</div>
+</li>
+
+<li><a id="信息的负责人"></a>信息的负责人<br />
+<div class="outline-text-5" id="text-信息的负责人">
+<div class="org-src-container">
+<pre class="src src-go"><span class="linenr">1: </span><span style="color: #7590db;">doc</span>, <span style="color: #7590db;">err</span> := html.<span style="color: #bc6ec5; font-weight: bold;">Parse</span><span style="color: #4f97d7;">(</span>resp.Body<span style="color: #4f97d7;">)</span>
+<span class="linenr">2: </span>resp.Body.<span style="color: #bc6ec5; font-weight: bold;">Close</span><span style="color: #4f97d7;">()</span>
+<span class="linenr">3: </span><span style="color: #4f97d7; font-weight: bold;">if</span> err != <span style="color: #a45bad;">nil</span> <span style="color: #4f97d7;">{</span>
+<span class="linenr">4: </span>  <span style="color: #4f97d7; font-weight: bold;">return</span> <span style="color: #a45bad;">nil</span>, fmt.<span style="color: #bc6ec5; font-weight: bold;">Errorf</span><span style="color: #bc6ec5;">(</span><span style="color: #2d9574;">"parsing %s as HTML: %v"</span>, url, err<span style="color: #bc6ec5;">)</span>
+<span class="linenr">5: </span><span style="color: #4f97d7;">}</span>
+</pre>
+</div>
+
+<blockquote>
+<p>
+In general, the call f(x) is responsible for reporting the attempted
+operation f and the argument value x as they related to the context of
+the error. The caller is responsible for adding further information that
+it has but the call f(x) does not, such as the URL in the call to
+html.Parse above.
+</p>
+</blockquote>
+</div>
+</li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-org07df099" class="outline-3">
+<h3 id="org07df099"><span class="section-number-3">1.2.</span> Methods</h3>
+<div class="outline-text-3" id="text-1-2">
+</div>
+<div id="outline-container-orgad8e86c" class="outline-4">
+<h4 id="orgad8e86c"><span class="section-number-4">1.2.1.</span> 方法接收者</h4>
+<div class="outline-text-4" id="text-1-2-1">
+<p>
+根据 Go 语法，实体类型在实现接口时，并不需要显式声明，只要实现接口所定义的方法即可。
+</p>
+
+<p>
+实体类型实现的方法格式如下：
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span class="linenr">1: </span><span style="color: #4f97d7; font-weight: bold;">func</span> <span style="color: #4f97d7;">(</span><span style="color: #7590db;">t</span> <span style="color: #ce537a; font-weight: bold;">T</span><span style="color: #4f97d7;">)</span> <span style="color: #bc6ec5; font-weight: bold;">foo</span><span style="color: #4f97d7;">()</span> <span style="color: #ce537a; font-weight: bold;">error</span> <span style="color: #4f97d7;">{</span>
+<span class="linenr">2: </span>    ...
+<span class="linenr">3: </span><span style="color: #4f97d7;">}</span>
+<span class="linenr">4: </span>
+<span class="linenr">5: </span><span style="color: #4f97d7; font-weight: bold;">func</span> <span style="color: #4f97d7;">(</span><span style="color: #7590db;">t</span> *<span style="color: #ce537a; font-weight: bold;">T</span><span style="color: #4f97d7;">)</span> <span style="color: #bc6ec5; font-weight: bold;">foo</span><span style="color: #4f97d7;">()</span> <span style="color: #ce537a; font-weight: bold;">error</span> <span style="color: #4f97d7;">{</span>
+<span class="linenr">6: </span>    ...
+<span class="linenr">7: </span><span style="color: #4f97d7;">}</span>
+</pre>
+</div>
+
+<p>
+<code>Go</code> 语言中，方法接收者有两种类型：
+</p>
+<ul class="org-ul">
+<li>T</li>
+<li>*T</li>
+</ul>
+
+<p>
+这两者是不同的，且可以拥有不同的方法集。
+</p>
+
+<p>
+但 Go 中提供的语法糖，可以令 T 类型的变量直接使用 *T 类型的方法。
+</p>
+
+<p>
+例如：
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span class="linenr"> 1: </span><span style="color: #4f97d7; font-weight: bold;">type</span> <span style="color: #ce537a; font-weight: bold;">intSet</span> <span style="color: #4f97d7; font-weight: bold;">struct</span><span style="color: #4f97d7;">{}</span>
+<span class="linenr"> 2: </span>
+<span class="linenr"> 3: </span><span style="color: #4f97d7; font-weight: bold;">func</span> <span style="color: #4f97d7;">(</span>*<span style="color: #ce537a; font-weight: bold;">intSet</span><span style="color: #4f97d7;">)</span> <span style="color: #bc6ec5; font-weight: bold;">String</span><span style="color: #4f97d7;">()</span> <span style="color: #ce537a; font-weight: bold;">string</span> <span style="color: #4f97d7;">{</span>
+<span class="linenr"> 4: </span>    <span style="color: #4f97d7; font-weight: bold;">return</span> <span style="color: #2d9574;">"intSet"</span>
+<span class="linenr"> 5: </span><span style="color: #4f97d7;">}</span>
+<span class="linenr"> 6: </span>
+<span class="linenr"> 7: </span><span style="color: #4f97d7; font-weight: bold;">func</span> <span style="color: #bc6ec5; font-weight: bold;">main</span><span style="color: #4f97d7;">()</span> <span style="color: #4f97d7;">{</span>
+<span class="linenr"> 8: </span>    <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">syntax error:</span>
+<span class="linenr"> 9: </span>    <span style="color: #2aa1ae; background-color: #292e34;">//   </span><span style="color: #2aa1ae; background-color: #292e34;">intSet doesn't have a String() method</span>
+<span class="linenr">10: </span>    <span style="color: #ce537a; font-weight: bold;">intSet</span><span style="color: #bc6ec5;">{}</span>.<span style="color: #bc6ec5; font-weight: bold;">String</span><span style="color: #bc6ec5;">()</span>
+<span class="linenr">11: </span>
+<span class="linenr">12: </span>    <span style="color: #4f97d7; font-weight: bold;">var</span> <span style="color: #7590db;">s</span> <span style="color: #ce537a; font-weight: bold;">intSet</span>
+<span class="linenr">13: </span>    <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">s.String(): a syntactic sugar</span>
+<span class="linenr">14: </span>    <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">the compiler implicitly takes its address</span>
+<span class="linenr">15: </span>    s.<span style="color: #bc6ec5; font-weight: bold;">String</span><span style="color: #bc6ec5;">()</span>
+<span class="linenr">16: </span><span style="color: #4f97d7;">}</span>
+</pre>
+</div>
+
+<p>
+那么何时使用 T 类型，何时使用 *T 类型呢？
+</p>
+
+<ul class="org-ul">
+<li>T 相当于类方法</li>
+<li>*T 相当于实例方法</li>
+</ul>
+
+<p>
+因此，如果需要改变实例属性，应使用 *T 类型接收者。
+</p>
+
+<p>
+但是，*T 并不是所有情况下都能使用，当一个具名类型本身已经是指针类型时，则不能再声明方法，例如：
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span class="linenr">1: </span><span style="color: #4f97d7; font-weight: bold;">type</span> <span style="color: #ce537a; font-weight: bold;">P</span> *<span style="color: #ce537a; font-weight: bold;">int</span>
+<span class="linenr">2: </span><span style="color: #4f97d7; font-weight: bold;">func</span> <span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">P</span><span style="color: #4f97d7;">)</span> <span style="color: #bc6ec5; font-weight: bold;">foo</span><span style="color: #4f97d7;">()</span> <span style="color: #4f97d7;">{}</span> <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">compile error: invalid receiver type</span>
+</pre>
+</div>
+
+<p>
+当类型实例中的接收者包含指针类型时，则对实例 <code>copy</code> 得到的新实例本质是引用。
+</p>
+
+<p>
+当类型实例中的接收者没有指针类型时，对实例 <code>copy</code> 得到的是无关的新实例。
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgd494d60" class="outline-4">
+<h4 id="orgd494d60"><span class="section-number-4">1.2.2.</span> nil作为方法接收者</h4>
+<div class="outline-text-4" id="text-1-2-2">
+<p>
+nil 可以作为函数的参数，同样，也可以作为函数的接收者，尤其是当 nil 是一个有意义的类型时：
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span class="linenr"> 1: </span><span style="color: #4f97d7; font-weight: bold;">package</span> main
+<span class="linenr"> 2: </span>
+<span class="linenr"> 3: </span><span style="color: #4f97d7; font-weight: bold;">import</span> <span style="color: #4f97d7;">(</span>
+<span class="linenr"> 4: </span>  <span style="color: #2d9574;">"fmt"</span>
+<span class="linenr"> 5: </span><span style="color: #4f97d7;">)</span>
+<span class="linenr"> 6: </span>
+<span class="linenr"> 7: </span><span style="color: #4f97d7; font-weight: bold;">type</span> <span style="color: #ce537a; font-weight: bold;">IntList</span> <span style="color: #4f97d7; font-weight: bold;">struct</span> <span style="color: #4f97d7;">{</span>
+<span class="linenr"> 8: </span>  Value <span style="color: #ce537a; font-weight: bold;">int</span>
+<span class="linenr"> 9: </span>  Tail  *<span style="color: #ce537a; font-weight: bold;">IntList</span>
+<span class="linenr">10: </span><span style="color: #4f97d7;">}</span>
+<span class="linenr">11: </span>
+<span class="linenr">12: </span><span style="color: #4f97d7; font-weight: bold;">func</span> <span style="color: #4f97d7;">(</span><span style="color: #7590db;">list</span> *<span style="color: #ce537a; font-weight: bold;">IntList</span><span style="color: #4f97d7;">)</span> <span style="color: #bc6ec5; font-weight: bold;">Sum</span><span style="color: #4f97d7;">()</span> <span style="color: #ce537a; font-weight: bold;">int</span> <span style="color: #4f97d7;">{</span>
+<span class="linenr">13: </span>  <span style="color: #4f97d7; font-weight: bold;">if</span> list == <span style="color: #a45bad;">nil</span> <span style="color: #bc6ec5;">{</span>
+<span class="linenr">14: </span>    <span style="color: #4f97d7; font-weight: bold;">return</span> <span style="color: #a45bad;">0</span>
+<span class="linenr">15: </span>  <span style="color: #bc6ec5;">}</span>
+<span class="linenr">16: </span>  <span style="color: #4f97d7; font-weight: bold;">return</span> list.Value + list.Tail.<span style="color: #bc6ec5; font-weight: bold;">Sum</span><span style="color: #bc6ec5;">()</span>
+<span class="linenr">17: </span><span style="color: #4f97d7;">}</span>
+<span class="linenr">18: </span>
+<span class="linenr">19: </span><span style="color: #4f97d7; font-weight: bold;">func</span> <span style="color: #bc6ec5; font-weight: bold;">main</span><span style="color: #4f97d7;">()</span> <span style="color: #4f97d7;">{</span>
+<span class="linenr">20: </span>  <span style="color: #4f97d7; font-weight: bold;">var</span> <span style="color: #7590db;">list</span> *<span style="color: #ce537a; font-weight: bold;">IntList</span>
+<span class="linenr">21: </span>  <span style="color: #7590db;">sum</span> := list.<span style="color: #bc6ec5; font-weight: bold;">Sum</span><span style="color: #bc6ec5;">()</span> <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">ok, even though list is nil</span>
+<span class="linenr">22: </span>  fmt.<span style="color: #bc6ec5; font-weight: bold;">Println</span><span style="color: #bc6ec5;">(</span>sum<span style="color: #bc6ec5;">)</span>  <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">output: 0</span>
+<span class="linenr">23: </span><span style="color: #4f97d7;">}</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgdf51c4a" class="outline-4">
+<h4 id="orgdf51c4a"><span class="section-number-4">1.2.3.</span> 结构体嵌套匿名类型</h4>
+<div class="outline-text-4" id="text-1-2-3">
+<p>
+结构体嵌套匿名类型，可以 "继承" 该类型的 <span class="underline">字段</span> 和 <span class="underline">方法</span> 。这种用法类似接口嵌套。
+</p>
+</div>
+
+<ol class="org-ol">
+<li><a id="org372f1a9"></a>嵌套匿名类型<br />
+<ol class="org-ol">
+<li><a id="org6283c8b"></a>"继承"匿名类型的字段<br />
+<div class="outline-text-6" id="text-1-2-3-1-1">
+<blockquote>
+<p>
+<code>struct</code> A may access the fields exported from <code>struct</code> B directly if an anonymous field <code>B</code> is embedded in A.
+</p>
+</blockquote>
+
+<div class="org-src-container">
+<pre class="src src-go"><span class="linenr"> 1: </span><span style="color: #4f97d7; font-weight: bold;">type</span> <span style="color: #ce537a; font-weight: bold;">Point</span> <span style="color: #4f97d7; font-weight: bold;">struct</span><span style="color: #4f97d7;">{</span> X, Y <span style="color: #ce537a; font-weight: bold;">float64</span> <span style="color: #4f97d7;">}</span>
+<span class="linenr"> 2: </span>
+<span class="linenr"> 3: </span><span style="color: #4f97d7; font-weight: bold;">type</span> <span style="color: #ce537a; font-weight: bold;">ColoredPoint</span> <span style="color: #4f97d7; font-weight: bold;">struct</span> <span style="color: #4f97d7;">{</span>
+<span class="linenr"> 4: </span>  Point
+<span class="linenr"> 5: </span>  Color <span style="color: #ce537a; font-weight: bold;">color.RGBA</span>
+<span class="linenr"> 6: </span><span style="color: #4f97d7;">}</span>
+<span class="linenr"> 7: </span>
+<span class="linenr"> 8: </span><span style="color: #4f97d7; font-weight: bold;">func</span> <span style="color: #bc6ec5; font-weight: bold;">main</span><span style="color: #4f97d7;">()</span> <span style="color: #4f97d7;">{</span>
+<span class="linenr"> 9: </span>  <span style="color: #4f97d7; font-weight: bold;">var</span> <span style="color: #7590db;">cp</span> <span style="color: #ce537a; font-weight: bold;">ColoredPoint</span>
+<span class="linenr">10: </span>  cp.X = <span style="color: #a45bad;">1</span> <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">access the filed of Point directly</span>
+<span class="linenr">11: </span>  fmt.<span style="color: #bc6ec5; font-weight: bold;">Println</span><span style="color: #bc6ec5;">(</span>cp.Point.X<span style="color: #bc6ec5;">)</span> <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">output: 1</span>
+<span class="linenr">12: </span><span style="color: #4f97d7;">}</span>
+</pre>
+</div>
+</div>
+</li>
+
+<li><a id="org24a1e40"></a>"继承"匿名类型的方法<br />
+<div class="outline-text-6" id="text-1-2-3-1-2">
+<blockquote>
+<p>
+A <code>ColoredPoint</code> is not a <code>Point</code>, but it "has a" <code>Point</code>, and it has two additional methods <code>Distance</code> and <code>ScaleyBy</code> promoted from point.
+</p>
+</blockquote>
+
+<div class="org-src-container">
+<pre class="src src-go"><span class="linenr"> 1: </span><span style="color: #4f97d7; font-weight: bold;">type</span> <span style="color: #ce537a; font-weight: bold;">Point</span> <span style="color: #4f97d7; font-weight: bold;">struct</span><span style="color: #4f97d7;">{</span> X, Y <span style="color: #ce537a; font-weight: bold;">float64</span> <span style="color: #4f97d7;">}</span>
+<span class="linenr"> 2: </span>
+<span class="linenr"> 3: </span><span style="color: #4f97d7; font-weight: bold;">func</span> <span style="color: #4f97d7;">(</span><span style="color: #7590db;">p</span> *<span style="color: #ce537a; font-weight: bold;">Point</span><span style="color: #4f97d7;">)</span> <span style="color: #bc6ec5; font-weight: bold;">ScaleBy</span><span style="color: #4f97d7;">(</span><span style="color: #7590db;">factor</span> <span style="color: #ce537a; font-weight: bold;">float64</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">{</span>
+<span class="linenr"> 4: </span>  p.X *= factor
+<span class="linenr"> 5: </span>  p.Y *= factor
+<span class="linenr"> 6: </span><span style="color: #4f97d7;">}</span>
+<span class="linenr"> 7: </span>
+<span class="linenr"> 8: </span><span style="color: #4f97d7; font-weight: bold;">type</span> <span style="color: #ce537a; font-weight: bold;">ColoredPoint</span> <span style="color: #4f97d7; font-weight: bold;">struct</span> <span style="color: #4f97d7;">{</span>
+<span class="linenr"> 9: </span>  Point
+<span class="linenr">10: </span>  Color <span style="color: #ce537a; font-weight: bold;">color.RGBA</span>
+<span class="linenr">11: </span><span style="color: #4f97d7;">}</span>
+<span class="linenr">12: </span>
+<span class="linenr">13: </span><span style="color: #4f97d7; font-weight: bold;">func</span> <span style="color: #bc6ec5; font-weight: bold;">main</span><span style="color: #4f97d7;">()</span> <span style="color: #4f97d7;">{</span>
+<span class="linenr">14: </span>  <span style="color: #4f97d7; font-weight: bold;">var</span> <span style="color: #7590db;">cp</span> <span style="color: #ce537a; font-weight: bold;">ColoredPoint</span>
+<span class="linenr">15: </span>  cp.X = <span style="color: #a45bad;">1</span>
+<span class="linenr">16: </span>  cp.<span style="color: #bc6ec5; font-weight: bold;">ScaleBy</span><span style="color: #bc6ec5;">(</span><span style="color: #a45bad;">2</span><span style="color: #bc6ec5;">)</span> <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">ScaleBy is a method of *Point, which can be accessed by ColoredPoint without metioning it</span>
+<span class="linenr">17: </span>  fmt.<span style="color: #bc6ec5; font-weight: bold;">Println</span><span style="color: #bc6ec5;">(</span>cp.Point.X<span style="color: #bc6ec5;">)</span> <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">output: 2</span>
+<span class="linenr">18: </span><span style="color: #4f97d7;">}</span>
+</pre>
+</div>
+</div>
+</li>
+
+<li><a id="org51906df"></a>示例用途：绑定多个字段<br />
+<div class="outline-text-6" id="text-1-2-3-1-3">
+<p>
+You may group together several related variables in a single variable.
+</p>
+
+<p>
+Here is an example using two package-level variables:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span class="linenr"> 1: </span><span style="color: #4f97d7; font-weight: bold;">var</span> <span style="color: #4f97d7;">(</span>
+<span class="linenr"> 2: </span>  <span style="color: #7590db;">mu</span> <span style="color: #ce537a; font-weight: bold;">sync.Mutex</span>
+<span class="linenr"> 3: </span>  <span style="color: #7590db;">mapping</span> <span style="color: #ce537a; font-weight: bold;">make</span><span style="color: #bc6ec5;">(</span><span style="color: #4f97d7; font-weight: bold;">map</span><span style="color: #2d9574;">[</span><span style="color: #ce537a; font-weight: bold;">string</span><span style="color: #2d9574;">]</span><span style="color: #ce537a; font-weight: bold;">string</span><span style="color: #bc6ec5;">)</span>
+<span class="linenr"> 4: </span><span style="color: #4f97d7;">)</span>
+<span class="linenr"> 5: </span>
+<span class="linenr"> 6: </span><span style="color: #4f97d7; font-weight: bold;">func</span> <span style="color: #bc6ec5; font-weight: bold;">Lookup</span><span style="color: #4f97d7;">(</span><span style="color: #7590db;">key</span> <span style="color: #ce537a; font-weight: bold;">string</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">{</span>
+<span class="linenr"> 7: </span>  mu.<span style="color: #bc6ec5; font-weight: bold;">Lock</span><span style="color: #bc6ec5;">()</span>
+<span class="linenr"> 8: </span>  <span style="color: #7590db;">v</span> := mapping<span style="color: #bc6ec5;">[</span>key<span style="color: #bc6ec5;">]</span>
+<span class="linenr"> 9: </span>  mu.<span style="color: #bc6ec5; font-weight: bold;">Unlock</span><span style="color: #bc6ec5;">()</span>
+<span class="linenr">10: </span>  <span style="color: #4f97d7; font-weight: bold;">return</span> v
+<span class="linenr">11: </span><span style="color: #4f97d7;">}</span>
+</pre>
+</div>
+
+<p>
+By using this trick, the code block above can be written as another functionally equivalent form:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span class="linenr"> 1: </span><span style="color: #4f97d7; font-weight: bold;">var</span> <span style="color: #7590db;">cache</span> = <span style="color: #4f97d7; font-weight: bold;">struct</span> <span style="color: #4f97d7;">{</span>
+<span class="linenr"> 2: </span>  sync.Mutex
+<span class="linenr"> 3: </span>  mapping <span style="color: #4f97d7; font-weight: bold;">map</span><span style="color: #bc6ec5;">[</span><span style="color: #ce537a; font-weight: bold;">string</span><span style="color: #bc6ec5;">][</span>string<span style="color: #bc6ec5;">]</span>
+<span class="linenr"> 4: </span><span style="color: #4f97d7;">}</span> <span style="color: #4f97d7;">{</span>
+<span class="linenr"> 5: </span>  mapping = <span style="color: #4f97d7;">make</span><span style="color: #bc6ec5;">(</span><span style="color: #4f97d7; font-weight: bold;">map</span><span style="color: #2d9574;">[</span><span style="color: #ce537a; font-weight: bold;">string</span><span style="color: #2d9574;">][</span>string<span style="color: #2d9574;">]</span><span style="color: #bc6ec5;">)</span>
+<span class="linenr"> 6: </span><span style="color: #4f97d7;">}</span>
+<span class="linenr"> 7: </span>
+<span class="linenr"> 8: </span><span style="color: #4f97d7; font-weight: bold;">func</span> <span style="color: #bc6ec5; font-weight: bold;">Lookup</span><span style="color: #4f97d7;">(</span><span style="color: #7590db;">key</span> <span style="color: #ce537a; font-weight: bold;">string</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">{</span>
+<span class="linenr"> 9: </span>  cache.<span style="color: #bc6ec5; font-weight: bold;">Lock</span><span style="color: #bc6ec5;">()</span>
+<span class="linenr">10: </span>  <span style="color: #7590db;">v</span> := cache.mapping<span style="color: #bc6ec5;">[</span>key<span style="color: #bc6ec5;">]</span>
+<span class="linenr">11: </span>  cache.<span style="color: #bc6ec5; font-weight: bold;">Unlock</span><span style="color: #bc6ec5;">()</span>
+<span class="linenr">12: </span><span style="color: #4f97d7;">}</span>
+</pre>
+</div>
+</div>
+</li>
+</ol>
+</li>
+
+
+<li><a id="org2a294ba"></a>嵌套匿名指针<br />
+<div class="outline-text-5" id="text-1-2-3-2">
+<p>
+结构体中嵌套 <span class="underline">匿名指针</span> ，可以用来在不同的实例间共享同一变量.
+</p>
+
+<blockquote>
+<p>
+Adding another level of indirection lets us share common structures and vary the relationship between objects dynamically.
+</p>
+</blockquote>
+
+<div class="org-src-container">
+<pre class="src src-go"><span class="linenr"> 1: </span><span style="color: #4f97d7; font-weight: bold;">type</span> <span style="color: #ce537a; font-weight: bold;">Point</span> <span style="color: #4f97d7; font-weight: bold;">struct</span><span style="color: #4f97d7;">{</span> X, Y <span style="color: #ce537a; font-weight: bold;">float64</span> <span style="color: #4f97d7;">}</span>
+<span class="linenr"> 2: </span>
+<span class="linenr"> 3: </span><span style="color: #4f97d7; font-weight: bold;">type</span> <span style="color: #ce537a; font-weight: bold;">ColoredPoint</span> <span style="color: #4f97d7; font-weight: bold;">struct</span> <span style="color: #4f97d7;">{</span>
+<span class="linenr"> 4: </span>  *Point
+<span class="linenr"> 5: </span>  Color <span style="color: #ce537a; font-weight: bold;">color.RGBA</span>
+<span class="linenr"> 6: </span><span style="color: #4f97d7;">}</span>
+<span class="linenr"> 7: </span>
+<span class="linenr"> 8: </span><span style="color: #4f97d7; font-weight: bold;">func</span> <span style="color: #bc6ec5; font-weight: bold;">main</span><span style="color: #4f97d7;">()</span> <span style="color: #4f97d7;">{</span>
+<span class="linenr"> 9: </span>  <span style="color: #7590db;">red</span> := <span style="color: #ce537a; font-weight: bold;">color.RGBA</span><span style="color: #bc6ec5;">{</span><span style="color: #a45bad;">255</span>, <span style="color: #a45bad;">0</span>, <span style="color: #a45bad;">0</span>, <span style="color: #a45bad;">1</span><span style="color: #bc6ec5;">}</span>
+<span class="linenr">10: </span>  <span style="color: #7590db;">blue</span> := <span style="color: #ce537a; font-weight: bold;">color.RGBA</span><span style="color: #bc6ec5;">{</span><span style="color: #a45bad;">0</span>, <span style="color: #a45bad;">0</span>, <span style="color: #a45bad;">255</span>, <span style="color: #a45bad;">1</span><span style="color: #bc6ec5;">}</span>
+<span class="linenr">11: </span>  <span style="color: #7590db;">p</span> := <span style="color: #ce537a; font-weight: bold;">ColoredPoint</span><span style="color: #bc6ec5;">{</span>&amp;<span style="color: #ce537a; font-weight: bold;">Point</span><span style="color: #2d9574;">{</span><span style="color: #a45bad;">1</span>, <span style="color: #a45bad;">1</span><span style="color: #2d9574;">}</span>, red<span style="color: #bc6ec5;">}</span>
+<span class="linenr">12: </span>  <span style="color: #7590db;">q</span> := <span style="color: #ce537a; font-weight: bold;">ColoredPoint</span><span style="color: #bc6ec5;">{</span>&amp;<span style="color: #ce537a; font-weight: bold;">Point</span><span style="color: #2d9574;">{</span><span style="color: #a45bad;">2</span>, <span style="color: #a45bad;">2</span><span style="color: #2d9574;">}</span>, blue<span style="color: #bc6ec5;">}</span>
+<span class="linenr">13: </span>  fmt.<span style="color: #bc6ec5; font-weight: bold;">Println</span><span style="color: #bc6ec5;">(</span>*q.Point<span style="color: #bc6ec5;">)</span> <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">output: 1, 1</span>
+<span class="linenr">14: </span>  q.Point = p.Point
+<span class="linenr">15: </span>  fmt.<span style="color: #bc6ec5; font-weight: bold;">Println</span><span style="color: #bc6ec5;">(</span>*q.Point<span style="color: #bc6ec5;">)</span> <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">output: 2, 2</span>
+<span class="linenr">16: </span><span style="color: #4f97d7;">}</span>
+</pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+
+<div id="outline-container-org7e11ed1" class="outline-4">
+<h4 id="org7e11ed1"><span class="section-number-4">1.2.4.</span> 函数指针</h4>
+<div class="outline-text-4" id="text-1-2-4">
+<p>
+Go 中的函数指针有两种写法，一种类似 <code>实例方法</code> ，另一种类似 <code>类方法</code> 。
+</p>
+</div>
+
+<ol class="org-ol">
+<li><a id="org50afcb7"></a>实例中的函数指针<br />
+<div class="outline-text-5" id="text-1-2-4-1">
+<p>
+这种也是最常见的函数指针，相当于创建了一个方法别名。
+实例中的 <code>方法</code> 可以当作 <code>变量</code> 传递，调用这种函数指针， <code>方法接收者</code> 即是 <code>方法</code> 所属的 <code>实例</code> 。
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span class="linenr"> 1: </span><span style="color: #4f97d7; font-weight: bold;">type</span> <span style="color: #ce537a; font-weight: bold;">Point</span> <span style="color: #4f97d7; font-weight: bold;">struct</span><span style="color: #4f97d7;">{</span> X, Y <span style="color: #ce537a; font-weight: bold;">float64</span> <span style="color: #4f97d7;">}</span>
+<span class="linenr"> 2: </span>
+<span class="linenr"> 3: </span><span style="color: #4f97d7; font-weight: bold;">func</span> <span style="color: #4f97d7;">(</span><span style="color: #7590db;">p</span> <span style="color: #ce537a; font-weight: bold;">Point</span><span style="color: #4f97d7;">)</span> <span style="color: #bc6ec5; font-weight: bold;">Distance</span><span style="color: #4f97d7;">(</span><span style="color: #7590db;">point</span> <span style="color: #ce537a; font-weight: bold;">Point</span><span style="color: #4f97d7;">)</span> <span style="color: #ce537a; font-weight: bold;">float64</span> <span style="color: #4f97d7;">{</span>
+<span class="linenr"> 4: </span>  <span style="color: #7590db;">x</span>, <span style="color: #7590db;">y</span> := p.X-point.X, p.Y-point.Y
+<span class="linenr"> 5: </span>  <span style="color: #7590db;">square</span> := x*x + y*y
+<span class="linenr"> 6: </span>  <span style="color: #4f97d7; font-weight: bold;">return</span> math.<span style="color: #bc6ec5; font-weight: bold;">Sqrt</span><span style="color: #bc6ec5;">(</span>square<span style="color: #bc6ec5;">)</span>
+<span class="linenr"> 7: </span><span style="color: #4f97d7;">}</span>
+<span class="linenr"> 8: </span>
+<span class="linenr"> 9: </span><span style="color: #4f97d7; font-weight: bold;">func</span> <span style="color: #bc6ec5; font-weight: bold;">main</span><span style="color: #4f97d7;">()</span> <span style="color: #4f97d7;">{</span>
+<span class="linenr">10: </span>  <span style="color: #7590db;">p1</span>, <span style="color: #7590db;">p2</span> := <span style="color: #ce537a; font-weight: bold;">Point</span><span style="color: #bc6ec5;">{</span><span style="color: #a45bad;">1</span>, <span style="color: #a45bad;">1</span><span style="color: #bc6ec5;">}</span>, <span style="color: #ce537a; font-weight: bold;">Point</span><span style="color: #bc6ec5;">{</span><span style="color: #a45bad;">4</span>, <span style="color: #a45bad;">5</span><span style="color: #bc6ec5;">}</span>
+<span class="linenr">11: </span>  <span style="color: #7590db;">distance</span> := p1.Distance
+<span class="linenr">12: </span>  fmt.<span style="color: #bc6ec5; font-weight: bold;">Printf</span><span style="color: #bc6ec5;">(</span><span style="color: #2d9574;">"%T\n"</span>, distance<span style="color: #bc6ec5;">)</span> <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">func(main.Point) float64</span>
+<span class="linenr">13: </span>  <span style="color: #7590db;">d</span> := <span style="color: #bc6ec5; font-weight: bold;">distance</span><span style="color: #bc6ec5;">(</span>p2<span style="color: #bc6ec5;">)</span>
+<span class="linenr">14: </span>  fmt.<span style="color: #bc6ec5; font-weight: bold;">Println</span><span style="color: #bc6ec5;">(</span>d<span style="color: #bc6ec5;">)</span> <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">output: 5</span>
+<span class="linenr">15: </span><span style="color: #4f97d7;">}</span>
+</pre>
+</div>
+</div>
+</li>
+
+<li><a id="org11c4924"></a>类中的函数指针<br />
+<div class="outline-text-5" id="text-1-2-4-2">
+<p>
+这种函数指针的用法，更像是 <code>类方法</code> ， <code>Go</code> 没有 <code>类</code> 这种结构，称作 <code>结构体方法</code> 可能更合适，这种方法可以直接使用 <code>结构体</code> 声明。
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span class="linenr"> 1: </span><span style="color: #4f97d7; font-weight: bold;">type</span> <span style="color: #ce537a; font-weight: bold;">Point</span> <span style="color: #4f97d7; font-weight: bold;">struct</span><span style="color: #4f97d7;">{</span> X, Y <span style="color: #ce537a; font-weight: bold;">float64</span> <span style="color: #4f97d7;">}</span>
+<span class="linenr"> 2: </span>
+<span class="linenr"> 3: </span><span style="color: #4f97d7; font-weight: bold;">func</span> <span style="color: #4f97d7;">(</span><span style="color: #7590db;">p</span> <span style="color: #ce537a; font-weight: bold;">Point</span><span style="color: #4f97d7;">)</span> <span style="color: #bc6ec5; font-weight: bold;">Distance</span><span style="color: #4f97d7;">(</span><span style="color: #7590db;">point</span> <span style="color: #ce537a; font-weight: bold;">Point</span><span style="color: #4f97d7;">)</span> <span style="color: #ce537a; font-weight: bold;">float64</span> <span style="color: #4f97d7;">{</span>
+<span class="linenr"> 4: </span>  <span style="color: #7590db;">x</span>, <span style="color: #7590db;">y</span> := p.X-point.X, p.Y-point.Y
+<span class="linenr"> 5: </span>  <span style="color: #7590db;">square</span> := x*x + y*y
+<span class="linenr"> 6: </span>  <span style="color: #4f97d7; font-weight: bold;">return</span> math.<span style="color: #bc6ec5; font-weight: bold;">Sqrt</span><span style="color: #bc6ec5;">(</span>square<span style="color: #bc6ec5;">)</span>
+<span class="linenr"> 7: </span><span style="color: #4f97d7;">}</span>
+<span class="linenr"> 8: </span>
+<span class="linenr"> 9: </span><span style="color: #4f97d7; font-weight: bold;">func</span> <span style="color: #bc6ec5; font-weight: bold;">main</span><span style="color: #4f97d7;">()</span> <span style="color: #4f97d7;">{</span>
+<span class="linenr">10: </span>  <span style="color: #7590db;">p1</span>, <span style="color: #7590db;">p2</span> := <span style="color: #ce537a; font-weight: bold;">Point</span><span style="color: #bc6ec5;">{</span><span style="color: #a45bad;">1</span>, <span style="color: #a45bad;">1</span><span style="color: #bc6ec5;">}</span>, <span style="color: #ce537a; font-weight: bold;">Point</span><span style="color: #bc6ec5;">{</span><span style="color: #a45bad;">4</span>, <span style="color: #a45bad;">5</span><span style="color: #bc6ec5;">}</span>
+<span class="linenr">11: </span>  <span style="color: #7590db;">distance</span> := Point.Distance
+<span class="linenr">12: </span>  fmt.<span style="color: #bc6ec5; font-weight: bold;">Printf</span><span style="color: #bc6ec5;">(</span><span style="color: #2d9574;">"%T\n"</span>, distance<span style="color: #bc6ec5;">)</span> <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">output: func(main.Point, main.Point) float64</span>
+<span class="linenr">13: </span>  <span style="color: #7590db;">d</span> := <span style="color: #bc6ec5; font-weight: bold;">distance</span><span style="color: #bc6ec5;">(</span>p1, p2<span style="color: #bc6ec5;">)</span>
+<span class="linenr">14: </span>  fmt.<span style="color: #bc6ec5; font-weight: bold;">Println</span><span style="color: #bc6ec5;">(</span>d<span style="color: #bc6ec5;">)</span> <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">output: 5</span>
+<span class="linenr">15: </span><span style="color: #4f97d7;">}</span>
+</pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-orgd3258eb" class="outline-3">
+<h3 id="orgd3258eb"><span class="section-number-3">1.3.</span> Interface</h3>
+<div class="outline-text-3" id="text-1-3">
+</div>
+<div id="outline-container-错误码-字符串映射" class="outline-4">
+<h4 id="错误码-字符串映射"><span class="section-number-4">1.3.1.</span> 错误码-字符串映射</h4>
+<div class="outline-text-4" id="text-错误码-字符串映射">
+<p>
+开发项目时，也曾困扰于如何采用一种优雅的方式将错误码封装为一个独立的模块，这个问题也可以利用 Go 语言的 <code>interface</code> 解决。
+</p>
+
+<p>
+思路很简单：
+</p>
+<ol class="org-ol">
+<li>使用整数定义一个类型 <code>Errno</code></li>
+<li>用 <code>Errno</code> 实现 <code>func Error() string</code> 函数</li>
+<li>调用 <code>Println(Errno(1))</code> 时即可打印出相应的字符串</li>
+</ol>
+
+<div class="org-src-container">
+<pre class="src src-go"><span class="linenr"> 1: </span><span style="color: #4f97d7; font-weight: bold;">package</span> errno
+<span class="linenr"> 2: </span>
+<span class="linenr"> 3: </span><span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">Errno is the type of errno</span>
+<span class="linenr"> 4: </span><span style="color: #4f97d7; font-weight: bold;">type</span> <span style="color: #ce537a; font-weight: bold;">Errno</span> <span style="color: #ce537a; font-weight: bold;">int</span>
+<span class="linenr"> 5: </span>
+<span class="linenr"> 6: </span><span style="color: #4f97d7; font-weight: bold;">const</span> <span style="color: #4f97d7;">(</span>
+<span class="linenr"> 7: </span>        <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">ErrorSuccess success</span>
+<span class="linenr"> 8: </span>        <span style="color: #a45bad;">ErrorSuccess</span> = <span style="color: #bc6ec5; font-weight: bold;">Errno</span><span style="color: #bc6ec5;">(</span><span style="color: #a45bad;">0x01</span><span style="color: #bc6ec5;">)</span>
+<span class="linenr"> 9: </span>        <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">ErrorFailure failure</span>
+<span class="linenr">10: </span>        <span style="color: #a45bad;">ErrorFailure</span> = <span style="color: #bc6ec5; font-weight: bold;">Errno</span><span style="color: #bc6ec5;">(</span><span style="color: #a45bad;">0x02</span><span style="color: #bc6ec5;">)</span>
+<span class="linenr">11: </span><span style="color: #4f97d7;">)</span>
+<span class="linenr">12: </span>
+<span class="linenr">13: </span><span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">&#21487;&#25351;&#23450;&#32034;&#24341;&#30340;&#21464;&#38271;&#25968;&#32452;</span>
+<span class="linenr">14: </span><span style="color: #4f97d7; font-weight: bold;">var</span> <span style="color: #7590db;">errors</span> = <span style="color: #4f97d7;">[</span>...<span style="color: #4f97d7;">]</span><span style="color: #ce537a; font-weight: bold;">string</span><span style="color: #4f97d7;">{</span>
+<span class="linenr">15: </span>        <span style="color: #a45bad;">1</span>: <span style="color: #2d9574;">"Success"</span>,
+<span class="linenr">16: </span>        <span style="color: #a45bad;">2</span>: <span style="color: #2d9574;">"Failure"</span>,
+<span class="linenr">17: </span><span style="color: #4f97d7;">}</span>
+<span class="linenr">18: </span>
+<span class="linenr">19: </span><span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">Error implements error</span>
+<span class="linenr">20: </span><span style="color: #4f97d7; font-weight: bold;">func</span> <span style="color: #4f97d7;">(</span><span style="color: #7590db;">errno</span> <span style="color: #ce537a; font-weight: bold;">Errno</span><span style="color: #4f97d7;">)</span> <span style="color: #bc6ec5; font-weight: bold;">Error</span><span style="color: #4f97d7;">()</span> <span style="color: #ce537a; font-weight: bold;">string</span> <span style="color: #4f97d7;">{</span>
+<span class="linenr">21: </span>        <span style="color: #4f97d7; font-weight: bold;">return</span> errors<span style="color: #bc6ec5;">[</span>errno<span style="color: #bc6ec5;">]</span>
+<span class="linenr">22: </span><span style="color: #4f97d7;">}</span>
+</pre>
+</div>
+
+<p>
+应用：
+<code>fmt.Println(object)</code>  会检查 <code>object</code> 的类型，若为：
+</p>
+<ul class="org-ul">
+<li><code>error</code> ，则对调 <code>object</code> 调用 <code>Error()</code></li>
+<li><code>Stringer</code> ，则对 <code>object</code> 调用 <code>String()</code></li>
+</ul>
+
+<div class="org-src-container">
+<pre class="src src-go"><span class="linenr">1: </span>fmt.<span style="color: #bc6ec5; font-weight: bold;">Println</span><span style="color: #4f97d7;">(</span>ErrorSuccess<span style="color: #4f97d7;">)</span>
+<span class="linenr">2: </span><span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">output: "Success"</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-go接口多态" class="outline-4">
+<h4 id="go接口多态"><span class="section-number-4">1.3.2.</span> 接口多态</h4>
+<div class="outline-text-4" id="text-go接口多态">
+<p>
+利用 Go 语言中的接口可以实现类似多态的效果，而且语法简洁，这在开发时将非常有用。
+</p>
+
+<p>
+包含实体类型的接口类型，仍然可以通过类型转换，得到原类型：
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span class="linenr"> 1: </span><span style="color: #4f97d7; font-weight: bold;">func</span> <span style="color: #bc6ec5; font-weight: bold;">newReader</span><span style="color: #4f97d7;">()</span> <span style="color: #ce537a; font-weight: bold;">io.Reader</span> <span style="color: #4f97d7;">{</span>
+<span class="linenr"> 2: </span>        <span style="color: #7590db;">buffer</span> := bytes.<span style="color: #bc6ec5; font-weight: bold;">NewBufferString</span><span style="color: #bc6ec5;">(</span><span style="color: #2d9574;">"hello, world"</span><span style="color: #bc6ec5;">)</span>
+<span class="linenr"> 3: </span>        <span style="color: #4f97d7; font-weight: bold;">return</span> buffer
+<span class="linenr"> 4: </span><span style="color: #4f97d7;">}</span>
+<span class="linenr"> 5: </span>
+<span class="linenr"> 6: </span><span style="color: #4f97d7; font-weight: bold;">func</span> <span style="color: #bc6ec5; font-weight: bold;">main</span><span style="color: #4f97d7;">()</span> <span style="color: #4f97d7;">{</span>
+<span class="linenr"> 7: </span>        <span style="color: #7590db;">reader</span> := <span style="color: #bc6ec5; font-weight: bold;">newReader</span><span style="color: #bc6ec5;">()</span>
+<span class="linenr"> 8: </span>        <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">downcasting: io.Reader =&gt; *bytes.Buffer</span>
+<span class="linenr"> 9: </span>        <span style="color: #7590db;">bytesBuffer</span> := reader.<span style="color: #bc6ec5;">(</span>*<span style="color: #ce537a; font-weight: bold;">bytes.Buffer</span><span style="color: #bc6ec5;">)</span>
+<span class="linenr">10: </span>        <span style="color: #7590db;">char</span>, <span style="color: #7590db;">_</span> := bytesBuffer.<span style="color: #bc6ec5; font-weight: bold;">ReadByte</span><span style="color: #bc6ec5;">()</span>
+<span class="linenr">11: </span>        fmt.<span style="color: #bc6ec5; font-weight: bold;">Println</span><span style="color: #bc6ec5;">(</span>char == <span style="color: #2d9574;">'h'</span><span style="color: #bc6ec5;">)</span> <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">true</span>
+<span class="linenr">12: </span><span style="color: #4f97d7;">}</span>
+</pre>
+</div>
+
+<p>
+根据这一特性，在创建泛用型工厂时，就变得极为简单。
+</p>
+</div>
+</div>
+
+<div id="outline-container-go接口适配器" class="outline-4">
+<h4 id="go接口适配器"><span class="section-number-4">1.3.3.</span> 接口适配器</h4>
+<div class="outline-text-4" id="text-go接口适配器">
+<p>
+借助 Go 语言的 interface 可以轻松实现 <b>函数-接口适配器</b> ，惊叹于 Go 语言的设计。
+</p>
+
+<p>
+<b>函数-接口适配器</b> ，也即令 <code>func A</code> 满足 <code>interface B</code> 的适配器。 例如：
+</p>
+
+<p>
+在项目开发时，存在一个已有接口，声明如下：
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span class="linenr">1: </span><span style="color: #4f97d7; font-weight: bold;">type</span> <span style="color: #ce537a; font-weight: bold;">SomeWriter</span> <span style="color: #4f97d7; font-weight: bold;">interface</span> <span style="color: #4f97d7;">{</span>
+<span class="linenr">2: </span>    <span style="color: #bc6ec5; font-weight: bold;">write</span><span style="color: #bc6ec5;">(</span><span style="color: #ce537a; font-weight: bold;">io.Writer</span><span style="color: #bc6ec5;">)</span> <span style="color: #ce537a; font-weight: bold;">int</span>
+<span class="linenr">3: </span><span style="color: #4f97d7;">}</span>
+</pre>
+</div>
+
+<p>
+有一函数以该接口作为参数：
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span class="linenr">1: </span><span style="color: #4f97d7; font-weight: bold;">func</span> <span style="color: #bc6ec5; font-weight: bold;">handleSomething</span><span style="color: #4f97d7;">(</span><span style="color: #7590db;">writer</span> <span style="color: #ce537a; font-weight: bold;">SomeWriter</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">{</span>
+<span class="linenr">2: </span>    ...
+<span class="linenr">3: </span><span style="color: #4f97d7;">}</span>
+</pre>
+</div>
+
+<p>
+在开发时，为实现新特性，新增一函数，实现如下：
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span class="linenr">1: </span><span style="color: #4f97d7; font-weight: bold;">func</span> <span style="color: #bc6ec5; font-weight: bold;">doSomething</span><span style="color: #4f97d7;">(</span><span style="color: #7590db;">writer</span> <span style="color: #ce537a; font-weight: bold;">io.Writer</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">(</span><span style="color: #7590db;">length</span> <span style="color: #ce537a; font-weight: bold;">int</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">{</span>
+<span class="linenr">2: </span>    ...
+<span class="linenr">3: </span><span style="color: #4f97d7;">}</span>
+</pre>
+</div>
+
+<p>
+虽然 <code>doSomething</code> 签名与 <code>SomeWriter.write</code>
+相同，但到底不是同一个类型，因此不能直接被 <code>handleSomething</code> 调用。
+</p>
+
+<p>
+但可以借由 <code>interface</code> 实现一个适配器：
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span class="linenr">1: </span><span style="color: #4f97d7; font-weight: bold;">type</span> <span style="color: #ce537a; font-weight: bold;">Adapter</span> <span style="color: #4f97d7; font-weight: bold;">func</span><span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">io.Writer</span><span style="color: #4f97d7;">)</span> <span style="color: #ce537a; font-weight: bold;">int</span>
+<span class="linenr">2: </span>
+<span class="linenr">3: </span><span style="color: #4f97d7; font-weight: bold;">func</span> <span style="color: #4f97d7;">(</span><span style="color: #7590db;">adapter</span> <span style="color: #ce537a; font-weight: bold;">Adapter</span><span style="color: #4f97d7;">)</span> <span style="color: #bc6ec5; font-weight: bold;">write</span><span style="color: #4f97d7;">(</span><span style="color: #7590db;">writer</span> <span style="color: #ce537a; font-weight: bold;">io.Writer</span><span style="color: #4f97d7;">)</span> <span style="color: #ce537a; font-weight: bold;">int</span> <span style="color: #4f97d7;">{</span>
+<span class="linenr">4: </span>    <span style="color: #4f97d7; font-weight: bold;">return</span> <span style="color: #bc6ec5; font-weight: bold;">adapter</span><span style="color: #bc6ec5;">(</span>writer<span style="color: #bc6ec5;">)</span>
+<span class="linenr">5: </span><span style="color: #4f97d7;">}</span>
+</pre>
+</div>
+
+<p>
+可以看到，以上声明的 <code>Adapter</code> 是一个有着特定签名的函数类型，且实现了 <code>SomeWriter</code> 接口，因此可以使用 <b>类型转换</b> 来做接口适配：
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span class="linenr">1: </span><span style="color: #bc6ec5; font-weight: bold;">handleSomething</span><span style="color: #4f97d7;">(</span><span style="color: #bc6ec5; font-weight: bold;">Adapter</span><span style="color: #bc6ec5;">(</span>doSomething<span style="color: #bc6ec5;">)</span><span style="color: #4f97d7;">)</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-go接口类型转换" class="outline-4">
+<h4 id="go接口类型转换"><span class="section-number-4">1.3.4.</span> Go接口类型转换</h4>
+<div class="outline-text-4" id="text-go接口类型转换">
+<p>
+接口类型转换是极为常用且基础的操作，常见的转换方式为：
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span class="linenr">1: </span><span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">panic when fails.</span>
+<span class="linenr">2: </span><span style="color: #7590db;">newType</span> := x.<span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">SomeType</span><span style="color: #4f97d7;">)</span>
+<span class="linenr">3: </span>
+<span class="linenr">4: </span><span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">set ok to false when fails.</span>
+<span class="linenr">5: </span><span style="color: #7590db;">newType</span>, <span style="color: #7590db;">ok</span> := x.<span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">SomeType</span><span style="color: #4f97d7;">)</span>
+</pre>
+</div>
+
+<p>
+如果变量有多种可能的类型，也可以通过 <code>switch</code> 与 <code>x.(type)</code> 来简化逻辑：
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span class="linenr"> 1: </span><span style="color: #4f97d7; font-weight: bold;">func</span> <span style="color: #bc6ec5; font-weight: bold;">switchType</span><span style="color: #4f97d7;">(</span><span style="color: #7590db;">x</span> <span style="color: #4f97d7; font-weight: bold;">interface</span><span style="color: #bc6ec5;">{}</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">{</span>
+<span class="linenr"> 2: </span>        <span style="color: #4f97d7; font-weight: bold;">switch</span> <span style="color: #7590db;">x</span> := x.<span style="color: #bc6ec5;">(</span><span style="color: #4f97d7; font-weight: bold;">type</span><span style="color: #bc6ec5;">)</span> <span style="color: #bc6ec5;">{</span>
+<span class="linenr"> 3: </span>        <span style="color: #4f97d7; font-weight: bold;">case</span> <span style="color: #a45bad;">nil</span>:
+<span class="linenr"> 4: </span>                <span style="color: #bc6ec5; font-weight: bold;">useAsNil</span><span style="color: #2d9574;">(</span>x<span style="color: #2d9574;">)</span>
+<span class="linenr"> 5: </span>        <span style="color: #4f97d7; font-weight: bold;">case</span> <span style="color: #ce537a; font-weight: bold;">int</span>, <span style="color: #ce537a; font-weight: bold;">uint</span>:
+<span class="linenr"> 6: </span>                <span style="color: #bc6ec5; font-weight: bold;">useAsInt</span><span style="color: #2d9574;">(</span>x<span style="color: #2d9574;">)</span>
+<span class="linenr"> 7: </span>        <span style="color: #4f97d7; font-weight: bold;">case</span> <span style="color: #ce537a; font-weight: bold;">string</span>:
+<span class="linenr"> 8: </span>                <span style="color: #bc6ec5; font-weight: bold;">useAsString</span><span style="color: #2d9574;">(</span>x<span style="color: #2d9574;">)</span>
+<span class="linenr"> 9: </span>        <span style="color: #4f97d7; font-weight: bold;">default</span>:
+<span class="linenr">10: </span>                <span style="color: #7590db;">text</span> := fmt.<span style="color: #bc6ec5; font-weight: bold;">Sprintf</span><span style="color: #2d9574;">(</span><span style="color: #2d9574;">"unexpected type: %T: %v"</span>, x, x<span style="color: #2d9574;">)</span>
+<span class="linenr">11: </span>                <span style="color: #4f97d7;">panic</span><span style="color: #2d9574;">(</span>text<span style="color: #2d9574;">)</span>
+<span class="linenr">12: </span>        <span style="color: #bc6ec5;">}</span>
+<span class="linenr">13: </span><span style="color: #4f97d7;">}</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-go包含空指针的接口" class="outline-4">
+<h4 id="go包含空指针的接口"><span class="section-number-4">1.3.5.</span> 包含空指针的接口</h4>
+<div class="outline-text-4" id="text-go包含空指针的接口">
+<p>
+接口 interface 格式如下：
+</p>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">Property</td>
+<td class="org-left">Value</td>
+</tr>
+
+<tr>
+<td class="org-left">Type</td>
+<td class="org-left">nil</td>
+</tr>
+
+<tr>
+<td class="org-left">Value</td>
+<td class="org-left">nil</td>
+</tr>
+</tbody>
+</table>
+
+<div class="org-src-container">
+<pre class="src src-go"><span class="linenr">1: </span><span style="color: #4f97d7; font-weight: bold;">var</span> <span style="color: #7590db;">writer</span> <span style="color: #ce537a; font-weight: bold;">io.Writer</span>
+<span class="linenr">2: </span>
+<span class="linenr">3: </span>writer == <span style="color: #a45bad;">nil</span> <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">true</span>
+</pre>
+</div>
+
+<p>
+若一个指针 <code>A</code> 为空，但转换为接口类型 <code>B</code> 后， <code>B != nil</code>
+</p>
+
+<p>
+声明一个指针，在不赋值的条件下， <code>ptr == nil</code>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span class="linenr">1: </span><span style="color: #4f97d7; font-weight: bold;">var</span> <span style="color: #7590db;">buf</span> *<span style="color: #ce537a; font-weight: bold;">bytes.Buffer</span>
+<span class="linenr">2: </span>fmt.<span style="color: #bc6ec5; font-weight: bold;">Printf</span><span style="color: #4f97d7;">(</span><span style="color: #2d9574;">"buf *bytes.Buffer is nil: %v\n"</span>, buf == <span style="color: #a45bad;">nil</span><span style="color: #4f97d7;">)</span>
+<span class="linenr">3: </span><span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">output: true</span>
+</pre>
+</div>
+
+<p>
+声明一个指针，并将其转换为接口类型，此时接口类型 <code>interface.type != nil</code>
+而接口值刚好为 <code>nil</code>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span class="linenr">1: </span><span style="color: #4f97d7; font-weight: bold;">var</span> <span style="color: #7590db;">buf</span> *<span style="color: #ce537a; font-weight: bold;">bytes.Buffer</span>
+<span class="linenr">2: </span>fmt.<span style="color: #bc6ec5; font-weight: bold;">Printf</span><span style="color: #4f97d7;">(</span><span style="color: #2d9574;">"buf io.Writer is nil: %v\n"</span>, io.<span style="color: #bc6ec5; font-weight: bold;">Writer</span><span style="color: #bc6ec5;">(</span>buf<span style="color: #bc6ec5;">)</span> == <span style="color: #a45bad;">nil</span><span style="color: #4f97d7;">)</span>
+<span class="linenr">3: </span><span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">output: false</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-go接口使用建议" class="outline-4">
+<h4 id="go接口使用建议"><span class="section-number-4">1.3.6.</span> Go接口使用建议</h4>
+<div class="outline-text-4" id="text-go接口使用建议">
+<ul class="org-ul">
+<li>不要创建过多接口</li>
+</ul>
+<blockquote>
+<p>
+When designing a new package, novice Go programmers often start by creating a set of interfaces and only later define the concrete types that satisfy them. <i>This approach results in many interfaces, each of which has only a single implementation. Don't do that.</i>
+</p>
+</blockquote>
+
+<ul class="org-ul">
+<li>用导出机制替代不必要的接口</li>
+</ul>
+
+<blockquote>
+<p>
+Such interfaces are unnecessary abstractions; they also have a run-time cost. <i>You can restrict which methods of a type or field of a struct are visible outside a package using the export mechanism.</i>
+</p>
+</blockquote>
+
+<ul class="org-ul">
+<li>接口的正确用法：
+
+<ul class="org-ul">
+<li>当抽象多个有共性的实体类型时</li>
+<li>用于模块解耦（面向接口编程）时</li>
+</ul></li>
+</ul>
+<blockquote>
+<p>
+Interfaces are only needed when there are two or more concrete types that must be dealt with in a uniform way. We make an exception to this rule when an interface is satisfied by a single concrete type but that type cannot live in the same package as the interface because of its dependencies. In that case, an interface is a good way to decouple two packages.
+</p>
+</blockquote>
+
+<ul class="org-ul">
+<li>设计简短的接口</li>
+</ul>
+<blockquote>
+<p>
+Because interfaces are used in Go only when they are satisfied by two or more types, they necessarily abstract away from the details of any particular implementation. The result is smaller interfaces with fewer, simpler methods, often just one as with io.Writer or fmt.Stringer. Small interfaces are easier to satisfy when new types come along. A good rule of thumb for interface design is ask for what you need.
+</p>
+</blockquote>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgf6b8b1d" class="outline-3">
+<h3 id="orgf6b8b1d"><span class="section-number-3">1.4.</span> Goroutines and Channels</h3>
+<div class="outline-text-3" id="text-1-4">
+</div>
+<div id="outline-container-org7fbe8c0" class="outline-4">
+<h4 id="org7fbe8c0"><span class="section-number-4">1.4.1.</span> <span class="todo TODO">TODO</span> CSP</h4>
+</div>
+<div id="outline-container-orga86468c" class="outline-4">
+<h4 id="orga86468c"><span class="section-number-4">1.4.2.</span> <span class="todo TODO">TODO</span> memory shared concurrency</h4>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="author">Author: deyuzhc</p>
+<p class="date">Created: 2022-04-12 Tue 11:11</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

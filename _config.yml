@@ -1,1 +1,8 @@
 theme: jekyll-theme-minimal
+logo: https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Emacs-logo.svg/1200px-Emacs-logo.svg.png
+title: 秋时
+description: 小时不识月，呼作白玉盘
+index_generator:
+  path: ''
+  per_page: 10
+  order_by: -date
